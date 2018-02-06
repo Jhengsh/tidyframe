@@ -1,6 +1,7 @@
 # tidyframe: Clean data to tidy Dataframe
 Overview
 --------
++ Clean pandas DataFrame to tidy DataFrame 
 + Inspired by [tidyr](https://github.com/tidyverse/tidyr) in R
 + Goal help you to create **tidy Pandas Dataframe**
 + Wapper partition function from DataFrame
@@ -112,3 +113,4 @@ spread(df_gather, ['index'], 'key')
 # 3	1.5	0.2	4.6	3.1
 # 4	1.4	0.2	5.0	3.6
 ```
+

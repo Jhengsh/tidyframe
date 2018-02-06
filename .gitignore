@@ -1,0 +1,10 @@
+build/
+dist/
+tidyframe.egg-info/
+ipynbs/.ipynb_checkpoints/
+.DS_Store
+*/.DS_Store
+.cache/
+tidyframe/__pycache__/
+tidyframe/tests/__pycache__/
+tests/__pycache__/

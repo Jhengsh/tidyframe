@@ -1,3 +1,5 @@
+""" Convert Pandas DataFrame Between Wide Format and Long Format """
+
 import pandas as pd
 
 def gather(df, key_col=None, key='key', value='value', dropna=True):
@@ -5,12 +7,15 @@ def gather(df, key_col=None, key='key', value='value', dropna=True):
 
     Parameters
     ----------
-    df: DataFrame
-    *args: return key-value of key columns
-    key: return DataFrame column name of key
-    value: return DataFrame column name fo value
+    df : DataFrame
+    key : return DataFrame column name of key
+    value : return DataFrame column name fo value
     dropna : boolean, default True
-        Whether to drop rows in the resulting Frame/Series with no valid values
+             Whether to drop rows in the resulting Frame/Series with no valid values
+
+    Returns
+    -------
+    df_return : Pandas DataFrame
     """
     if key_col is None:
         key_col = df.columns
@@ -41,10 +46,18 @@ def gather(df, key_col=None, key='key', value='value', dropna=True):
         return df_return
 
 def spread(df, row_index, key):
-    """Spread key-value pair to multiple columns
-    df: long format Dataframe
-    row_index: transform to wide format row index column
-    key: key column which return DataFrame column name
+    """
+    Spread key-value pair to multiple columns
+
+    Parameters
+    ----------
+    df : long format Dataframe
+    row_index : transform to wide format row index column
+    key : key column which return DataFrame column name
+
+    Returns
+    -------
+    df_return : Pandas DataFrame
     """
     list_index = []
     if isinstance(row_index, list):
@@ -55,6 +68,6 @@ def spread(df, row_index, key):
         list_index.extend(key)
     else:
         list_index.append(key)
-    df = df.set_index(list_index)
-    df = df.unstack(-1)
-    return df
+    df_return = df.set_index(list_index)
+    df_return = df_return.unstack(-1)
+    return df_return

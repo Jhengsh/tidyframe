@@ -1,7 +1,9 @@
-import pandas as pd
-import numpy as np
+""" Convert Pandas DataFrame to nest DataFrame """
+
 import copy as cp
 from functools import partial
+import pandas as pd
+import numpy as np
 
 def nest(df, columns=[], columns_minus=[], columns_between=[], key='data', copy=False):
     """
@@ -11,7 +13,8 @@ def nest(df, columns=[], columns_minus=[], columns_between=[], key='data', copy=
     ----------
     df: DataFrameGroupBy or DataFrame
     columns: list or index, nest columns
-    columns_minus: list or index, columns which do not want to nest(must choose one of columns and columns_minus)
+    columns_minus: list or index, columns which do not want to nest
+                   (must choose one of columns and columns_minus)
     columns_between: list with length 2, assigin nest columns between to two columns
     copy: False, return DataFrame using copy.deepcopy
     """

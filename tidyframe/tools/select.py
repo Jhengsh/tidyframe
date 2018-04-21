@@ -1,3 +1,5 @@
+""" Easy Select Column Method from Pandas DataFrame """
+
 from copy import deepcopy
 
 def select(df, columns_minus=None, copy=False):

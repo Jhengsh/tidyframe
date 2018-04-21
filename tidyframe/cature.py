@@ -1,3 +1,5 @@
+""" Deal with Function Exceptions """
+
 import numpy as np
 
 class Possibly(object):
@@ -8,12 +10,14 @@ class Possibly(object):
     """
     otherwise_all = np.NaN
     quiet_all = True
+
     def __init__(self, otherwise=np.NaN, quiet=True):
         self.otherwise = otherwise
         self.quiet = quiet
 
     def __call__(self, func):
         def result_func(*args, **kargs):
+            """ Catch all Function Exception """
             try:
                 result = func(*args, **kargs)
             except Exception as e:
@@ -25,6 +29,7 @@ class Possibly(object):
 
     @classmethod
     def possibly(cls, func):
+        """ class method for Catch all Function Exception """
         def result_func(*args, **kargs):
             try:
                 result = func(*args, **kargs)
@@ -44,12 +49,14 @@ class Safely(object):
     """
     otherwise_all = np.NaN
     quiet_all = True
+
     def __init__(self, otherwise=np.NaN, quiet=True):
         self.otherwise = otherwise
         self.quiet = quiet
 
     def __call__(self, func):
         def result_func(*args, **kargs):
+            """ Catch all Function Exception """
             result_dict = {}
             try:
                 result_dict['result'] = func(*args, **kargs)
@@ -64,6 +71,7 @@ class Safely(object):
 
     @classmethod
     def safely(cls, func):
+        """ class method for Catch all Function Exception """
         def result_func(*args, **kargs):
             result_dict = {}
             try:

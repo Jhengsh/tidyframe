@@ -22,7 +22,7 @@ def gather(df, key_col=None, key='key', value='value', dropna=True):
         index = df.columns.difference(key_col).values.tolist()
     elif isinstance(key_col, (list, pd.core.indexes.base.Index)):
         index = df.columns.difference(key_col).values.tolist()
-    if len(index)>0:
+    if len(index) > 0:
         df_tmp = df.set_index(index)
         df_return = df_tmp[key_col].stack(dropna=dropna).reset_index()
         columns_return = df_return.columns.values.copy()
@@ -58,4 +58,3 @@ def spread(df, row_index, key):
     df = df.set_index(list_index)
     df = df.unstack(-1)
     return df
-

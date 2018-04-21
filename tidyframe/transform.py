@@ -1,10 +1,12 @@
 import pandas as pd
 import numpy as np
 import copy as cp
+from functools import partial
 
 def nest(df, columns=[], columns_minus=[], columns_between=[], key='data', copy=False):
-    """Nest repeated values
-    
+    """
+    Nest repeated values
+
     Parameters
     ----------
     df: DataFrameGroupBy or DataFrame
@@ -14,43 +16,43 @@ def nest(df, columns=[], columns_minus=[], columns_between=[], key='data', copy=
     copy: False, return DataFrame using copy.deepcopy
     """
     assert isinstance(df, (pd.core.frame.DataFrame, pd.core.groupby.DataFrameGroupBy)), "Must be DataFrame"
-    if len(columns)>0:
-        assert len(columns_minus)==0 and len(columns_between)==0, "Using Parameter columns then columns_minus and column_between must not use"
-    if len(columns_minus)>0:
-        assert len(columns)==0 and len(columns_between)==0, "Using Parameter columns_minus then columns and columns_between must not use"
-    if len(columns_between)>0:
-        assert len(columns_between)==2, "lenth of columns_between must be 2"
-        assert len(columns)==0 and len(columns_minus)==0, "Using Parameter columns_between then columns_minus and between must not use"
-        
-    if isinstance(df, pd.core.frame.DataFrame):    
-        if len(columns)>0:
+    if len(columns) > 0:
+        assert len(columns_minus) == 0 and len(columns_between) == 0, "Using Parameter columns then columns_minus and column_between must not use"
+    if len(columns_minus) > 0:
+        assert len(columns) == 0 and len(columns_between) == 0, "Using Parameter columns_minus then columns and columns_between must not use"
+    if len(columns_between) > 0:
+        assert len(columns_between) == 2, "lenth of columns_between must be 2"
+        assert len(columns) == 0 and len(columns_minus) == 0, "Using Parameter columns_between then columns_minus and between must not use"
+
+    if isinstance(df, pd.core.frame.DataFrame):
+        if len(columns) > 0:
             if isinstance(columns, pd.core.indexes.base.Index):
                 columns_nest = columns.tolist()
             else:
                 columns_nest = columns
             columns_group = df.columns.difference(columns_nest).tolist()
             df_g = df.groupby(columns_group)
-            data = [[index ,group[columns_nest]] for index, group in df_g]
-        elif len(columns_minus)>0:
+            data = [[index, group[columns_nest]] for index, group in df_g]
+        elif len(columns_minus) > 0:
             if isinstance(columns_minus, pd.core.indexes.base.Index):
                 columns_group = columns_minus.tolist()
             else:
                 columns_group = columns_minus
             columns_nest = df.columns.difference(columns_group).tolist()
             df_g = df.groupby(columns_group)
-            data = [[index ,group[columns_nest]] for index, group in df_g]
+            data = [[index, group[columns_nest]] for index, group in df_g]
         else:
-            index_start = np.where(df.columns==columns_between[0])[0][0]
-            index_end = np.where(df.columns==columns_between[1])[0][0]
+            index_start = np.where(df.columns == columns_between[0])[0][0]
+            index_end = np.where(df.columns == columns_between[1])[0][0]
             assert index_start < index_end, "columns_between order error"
             columns_nest = df.columns[index_start:(index_end+1)].tolist()
             columns_group = df.columns.difference(columns_nest).tolist()
             df_g = df.groupby(columns_group)
-            data = [[index ,group[columns_nest]] for index, group in df_g]
+            data = [[index, group[columns_nest]] for index, group in df_g]
     else:
         columns_group = list(df.dtypes.index.names)
         columns_nest = list(df.dtypes.columns)
-        data = [[index ,group[columns_nest]] for index, group in df]
+        data = [[index, group[columns_nest]] for index, group in df]
     outer = list(map(lambda x: x[0], data))
     df_return = pd.DataFrame(outer, columns=columns_group)
     df_return[key] = list(map(lambda x: x[1][columns_nest], data))
@@ -60,16 +62,17 @@ def nest(df, columns=[], columns_minus=[], columns_between=[], key='data', copy=
         return df_return
 
 def unnest(df, drop=[], copy=False):
-    """Inverse Nest DataFrame
-    
+    """
+    Inverse Nest DataFrame
+
     Parameters
     ----------
     df: DataFrame with Series of Dataframe
     drop: list of column which do not return
     """
     df_check = df.applymap(lambda x: isinstance(x, pd.DataFrame))
-    columns_nest = df_check.columns[df_check.sum()==df_check.shape[0]].tolist()
-    assert len(columns_nest)<=1, "Series of Dataframe must less than 1"
+    columns_nest = df_check.columns[df_check.sum() == df_check.shape[0]].tolist()
+    assert len(columns_nest) <= 1, "Series of Dataframe must less than 1"
     if len(columns_nest) == 1:
         repeat_times = list(map(lambda x: x.shape[0], df[columns_nest[0]]))
         columns_group = df_check.columns.difference(columns_nest)
@@ -79,8 +82,8 @@ def unnest(df, drop=[], copy=False):
             return cp.deepcopy(df_return[df_return.columns.difference(drop)])
         else:
             return df_return[df_return.columns.difference(drop)]
-    column_series = df.columns[df.applymap(lambda x: isinstance(x, (pd.Series, np.ndarray, list))).sum()>0].tolist()
-    assert len(column_series)==1, "Must exist one list of list Series"
+    column_series = df.columns[df.applymap(lambda x: isinstance(x, (pd.Series, np.ndarray, list))).sum() > 0].tolist()
+    assert len(column_series) == 1, "Must exist one list of list Series"
     repeat_times = df[column_series[0]].map(len)
     columns_group = df.columns.difference(column_series)
     df_return = pd.DataFrame(df[columns_group].as_matrix().repeat(repeat_times, axis=0), columns=columns_group)
@@ -97,7 +100,7 @@ def apply_window(df, func, partition=None, columns=None):
     Parameters
     ----------
     df: DataFrameGroupBy or DataFrame
-    func: list of function 
+    func: list of function
     partition: list of partition columns
     columns: list of columns which need to apply func
     """
@@ -125,7 +128,7 @@ def apply_window(df, func, partition=None, columns=None):
             return pd.concat(list_df, axis=1)
     if isinstance(func, dict):
         df_return = pd.DataFrame()
-        for (k,v) in func.items():
+        for (k, v) in func.items():
             if isinstance(v, list):
                 for each_fun in v:
                     df_return[k + '_' + each_fun.__name__] = df_g[k].transform(each_fun)
@@ -135,4 +138,27 @@ def apply_window(df, func, partition=None, columns=None):
             df_return.index = df.index
         return df_return
 
+def _series_to_dict(x, index_name='index'):
+    """
+    Change Pandas Series to Dict With Index
 
+    Parameters
+    ----------
+    x: pandas Series
+    index_name: return dict key of index name
+    """
+    x_dict = x.to_dict()
+    x_dict[index_name] = x.name
+    return x_dict
+
+def to_dataframe(data, index_name='index'):
+    """
+    Change list of Pandas Serice to Pandas DataFrame
+
+    Parameters
+    ----------
+    data list of pandas Series
+    index_name: return index DataFrame column name
+    """
+    p_series_to_dict = partial(_series_to_dict, index_name=index_name)
+    return pd.DataFrame(list(map(p_series_to_dict, data)))

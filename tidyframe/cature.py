@@ -1,13 +1,14 @@
 import numpy as np
 
 class Possibly(object):
-    """Cature Exception if function exception occurred 
-    
-    if function result occur exception then this decorator help you cature and return specified value(defaule: numpy.NaN)
+    """Cature Exception if function exception occurred
+
+    if function result occur exception then this decorator help you cature
+    and return specified value(defaule: numpy.NaN)
     """
     otherwise_all = np.NaN
     quiet_all = True
-    def __init__(self, otherwise=np.NaN, quiet = True):
+    def __init__(self, otherwise=np.NaN, quiet=True):
         self.otherwise = otherwise
         self.quiet = quiet
 
@@ -35,15 +36,15 @@ class Possibly(object):
         return result_func
 
 class Safely(object):
-    """Cature Exception if function exception occurred 
-    
+    """Cature Exception if function exception occurred
+
     This decorator will change function result to dict with two key.
     result: function result if no exception occurred, None if exception occurred
     error: None if no exception occurred, exception string if exception occurred
     """
     otherwise_all = np.NaN
     quiet_all = True
-    def __init__(self, otherwise=np.NaN, quiet = True):
+    def __init__(self, otherwise=np.NaN, quiet=True):
         self.otherwise = otherwise
         self.quiet = quiet
 
@@ -60,7 +61,7 @@ class Safely(object):
                     print(e)
             return result_dict
         return result_func
-    
+
     @classmethod
     def safely(cls, func):
         def result_func(*args, **kargs):

@@ -147,8 +147,8 @@ def _series_to_dict(x, index_name='index'):
 
     Parameters
     ----------
-    x: pandas Series
-    index_name: return dict key of index name
+    x : pandas Series
+    index_name : return dict key of index name
     """
     x_dict = x.to_dict()
     x_dict[index_name] = x.name
@@ -160,8 +160,8 @@ def to_dataframe(data, index_name='index'):
 
     Parameters
     ----------
-    data list of pandas Series
-    index_name: return index DataFrame column name
+    data : list of pandas Series
+    index_name : return index DataFrame column name
     """
     p_series_to_dict = partial(_series_to_dict, index_name=index_name)
     return pd.DataFrame(list(map(p_series_to_dict, data)))

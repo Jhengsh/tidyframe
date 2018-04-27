@@ -1,4 +1,7 @@
-# tidyframe: Clean data to tidy Dataframe
+# tidyframe: Clean Data to Tidy Dataframe
+
+[<img src="https://travis-ci.org/Jhengsh/tidyframe.svg?branch=master">](https://travis-ci.org/Jhengsh/tidyframe)
+
 Overview
 --------
 

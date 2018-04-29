@@ -23,3 +23,5 @@ def test_nest_by_index():
 def test_nest_by_index_minus():
     nest(df, columns_minus=df.columns[4:6], key='data_nest', copy=True).head()
 
+def test_nest_column_between():
+    nest(df, columns_between=['sepal length (cm)', 'petal width (cm)'], key='data_nest')

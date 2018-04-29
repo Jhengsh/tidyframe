@@ -75,27 +75,39 @@ def unnest(df, drop=[], copy=False):
     """
     df_check = df.applymap(lambda x: isinstance(x, pd.DataFrame))
     columns_nest = df_check.columns[df_check.sum() == df_check.shape[0]].tolist()
-    assert len(columns_nest) <= 1, "Series of Dataframe must less than 1"
-    if len(columns_nest) == 1:
-        repeat_times = list(map(lambda x: x.shape[0], df[columns_nest[0]]))
-        columns_group = df_check.columns.difference(columns_nest)
+    if len(columns_nest)>0:
+        if len(columns_nest) == 1:
+            repeat_times = list(map(lambda x: x.shape[0], df[columns_nest[0]]))
+            columns_group = df_check.columns.difference(columns_nest)
+            df_return = pd.DataFrame(df[columns_group].as_matrix().repeat(repeat_times, axis=0), columns=columns_group)
+            df_return = pd.concat([df_return, pd.concat([*df[columns_nest[0]].tolist()])], axis=1)
+            if copy:
+                return cp.deepcopy(df_return[df_return.columns.difference(drop)])
+            else:
+                return df_return[df_return.columns.difference(drop)]
+        else:
+            dict_col = {v:k+1 for k,v in enumerate(df.columns)}
+            columns_value = df.columns.difference(columns_nest).tolist()
+            list_df_tmp = []
+            for x in df.itertuples():
+                df_tmp = pd.concat([x[dict_col[col]] for col in columns_nest], axis=1)
+                for col in columns_value:
+                    df_tmp[col] = x[dict_col[col]]
+                list_df_tmp.append(df_tmp)
+            df_return = pd.concat(list_df_tmp)
+            return df_return[pd.Index(columns_value).append(df_return.columns.difference(columns_value))]
+    else:
+        column_series = df.columns[df.applymap(lambda x: isinstance(x, (pd.Series, np.ndarray, list))).sum() > 0].tolist()
+        assert len(column_series) == 1, "Must exist one list of list Series"
+        repeat_times = df[column_series[0]].map(len)
+        columns_group = df.columns.difference(column_series)
         df_return = pd.DataFrame(df[columns_group].as_matrix().repeat(repeat_times, axis=0), columns=columns_group)
-        df_return = pd.concat([df_return, pd.concat([*df[columns_nest[0]].tolist()])], axis=1)
+        df_series = pd.concat([*df[column_series[0]].map(lambda x: pd.DataFrame(x))], axis=0)
+        df_return[column_series[0]] = df_series[0].tolist()
         if copy:
             return cp.deepcopy(df_return[df_return.columns.difference(drop)])
         else:
             return df_return[df_return.columns.difference(drop)]
-    column_series = df.columns[df.applymap(lambda x: isinstance(x, (pd.Series, np.ndarray, list))).sum() > 0].tolist()
-    assert len(column_series) == 1, "Must exist one list of list Series"
-    repeat_times = df[column_series[0]].map(len)
-    columns_group = df.columns.difference(column_series)
-    df_return = pd.DataFrame(df[columns_group].as_matrix().repeat(repeat_times, axis=0), columns=columns_group)
-    df_series = pd.concat([*df[column_series[0]].map(lambda x: pd.DataFrame(x))], axis=0)
-    df_return[column_series[0]] = df_series[0].tolist()
-    if copy:
-        return cp.deepcopy(df_return[df_return.columns.difference(drop)])
-    else:
-        return df_return[df_return.columns.difference(drop)]
 
 def apply_window(df, func, partition=None, columns=None):
     """ apply window function in DataFrame

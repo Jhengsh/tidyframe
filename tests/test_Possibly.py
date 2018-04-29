@@ -28,3 +28,9 @@ def test_Possibly_classmethod_change_default():
     Possibly.otherwise_all = 1
     Possibly.quiet_all = False
     assert np.isclose(Possibly.possibly(math.log)(-1), 1), 'Must result is True'
+
+def test_Possibly_print_exception():
+    @Possibly(otherwise=-1, quiet=False)
+    def log_possibly(x):
+        return math.log(x)
+    log_possibly(-10)

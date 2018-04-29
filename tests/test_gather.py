@@ -19,6 +19,9 @@ def test_gather_without_index():
 def test_gather_assign_col():
     gather(df_short, col_gather )
 
+def test_gather_str_key():
+    gather(df_short, 'target')
+
 def test_gather_with_index_name():
     df_short2 = df_short[col_gather]
     df_short2.index.name = 'index_with_name'

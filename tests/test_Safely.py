@@ -32,3 +32,9 @@ def test_Safely_classmethod_change_default():
     result_log5 = Safely.safely(math.log)(-1)
     assert np.isclose(result_log5['result'], -1), 'Must result is True'
     assert result_log5['error'] is not None, 'Must result is True'
+
+def test_Safely_print_exception():
+    @Safely(otherwise=-1, quiet=False)
+    def log_safely(x):
+        return math.log(x)
+    log_safely(-10)

@@ -11,13 +11,21 @@ df_short = df.head()
 df_short_gather = gather(df_short[col_gather])
 df_short_gather2 = gather(df_short, col_gather )
 
-def test_spead_basic():
+def test_spread_basic():
     spread(df_short_gather, ['index'], 'key')
 
-def test_spead_string():
+def test_spread_string():
     spread(df_short_gather, 'index', 'key')
 
-def test_spead_mulit_value():
+def test_spread_mulit_value():
     df_short_gather2 = df_short_gather
     df_short_gather2['value2'] = df_short_gather2['value'] + 1
     spread(df_short_gather, 'index', 'key')
+
+def test_spread_mulit_key():
+    df_short_gather['key_with_index'] = df_short_gather['key'] + "_" + df_short_gather['index'].astype(str)
+    spread(df_short_gather, 'index', ['key', 'key_with_index'])
+
+def test_spread_mulit_row_key():
+    df_short_gather['index2'] = df_short_gather['index'] + 1 
+    spread(df_short_gather, ['index', 'index2'], 'key')

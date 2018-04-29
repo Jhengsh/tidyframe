@@ -66,8 +66,14 @@ def spread(df, row_index, key):
         list_index.append(row_index)
     if isinstance(key, list):
         list_index.extend(key)
+        list_key = key
     else:
         list_index.append(key)
+        list_key = [key]
     df_return = df.set_index(list_index)
-    df_return = df_return.unstack(-1)
-    return df_return
+    if len(list_key) == 1:
+        return df_return.unstack(-1)
+    else:
+        index_start = len(list_index) - len(list_key)
+        index_end = len(list_index) - 1
+        return df_return.unstack(list(range(index_start, index_end + 1)))

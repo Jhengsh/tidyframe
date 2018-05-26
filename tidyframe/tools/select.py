@@ -1,6 +1,7 @@
 """ Easy Select Column Method from Pandas DataFrame """
 
-from copy import deepcopy
+import re
+from copy import copy, deepcopy
 
 def select(df, columns=None, columns_minus=None, columns_between=None, copy=False):
     """
@@ -31,3 +32,25 @@ def select(df, columns=None, columns_minus=None, columns_between=None, copy=Fals
         return deepcopy(df_return)
     else:
         return df_return
+
+def reorder_columns(df, columns=None, pattern=None):
+    """
+    reorder columns of pandas DataFrame
+
+    Parameters
+    ----------
+    df : Pandas DataFrame
+    columns : list which want to head column name(non-use if pattern is not None)
+    pattern : regular expression pattern which let selected columns be at head columns
+
+    Returns
+    -------
+    df_return : Pandas DataFrame
+    """
+    if pattern:
+        reorder_columns = list(filter(lambda x: re.search(pattern, x), df.columns))
+    else:
+        reorder_columns = copy(list(columns))
+    raw_columns = df.columns.copy()
+    reorder_columns.extend(raw_columns.difference(reorder_columns).tolist())
+    return df[reorder_columns]

@@ -4,6 +4,7 @@ from copy import copy
 from functools import reduce
 from funcy import get_in
 
+
 def flatten_dict(source_dict, name_delimiter='_', inner_name=False):
     """
     flatten nest dict
@@ -37,15 +38,29 @@ def flatten_dict(source_dict, name_delimiter='_', inner_name=False):
                     val_in = copy(val)
                     val_in.append(key)
                     if isinstance(get_in(source_dict, val_in), dict):
-                        dict_to_update = {reduce(lambda x, y: x + name_delimiter + y, val_in):[True, val_in]}
+                        dict_to_update = {
+                            reduce(lambda x, y: x + name_delimiter + y, val_in):
+                            [True, val_in]
+                        }
                     else:
-                        dict_to_update = {reduce(lambda x, y: x + name_delimiter + y, val_in):[False, val_in]}
+                        dict_to_update = {
+                            reduce(lambda x, y: x + name_delimiter + y, val_in):
+                            [False, val_in]
+                        }
                     dict_to_update_json_name.update(dict_to_update)
                 json_name.update(dict_to_update_json_name)
                 json_name.pop(x)
         else:
             break
     if inner_name:
-        return {json_name.get(x)[1][-1]:get_in(source_dict, json_name.get(x)[1]) for x in json_name.keys()}
+        return {
+            json_name.get(x)[1][-1]: get_in(source_dict,
+                                            json_name.get(x)[1])
+            for x in json_name.keys()
+        }
     else:
-        return {x:get_in(source_dict, json_name.get(x)[1]) for x in json_name.keys()}
+        return {
+            x: get_in(source_dict,
+                      json_name.get(x)[1])
+            for x in json_name.keys()
+        }

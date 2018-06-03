@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 
+
 def _select_index(x, i, otherwise=np.NaN):
     """
     Select by index and Catch all Exception
@@ -21,6 +22,7 @@ def _select_index(x, i, otherwise=np.NaN):
         return x[i]
     except:
         return otherwise
+
 
 def separate(series, index=None, columns=None, otherwise=np.NaN):
     """
@@ -42,14 +44,18 @@ def separate(series, index=None, columns=None, otherwise=np.NaN):
     if index is not None:
         assert max(index) < ncol, 'max of index MUST less than max of Series'
         if columns is not None:
-            assert len(columns) == len(index), "length of columns MUST SAME as length of index"
+            assert len(columns) == len(
+                index), "length of columns MUST SAME as length of index"
         else:
-            columns = pd.Series(['col'] * len(index)) + '_' + pd.Series(index).apply(str)
+            columns = pd.Series(
+                ['col'] * len(index)) + '_' + pd.Series(index).apply(str)
     else:
         index = list(range(ncol))
-        columns = pd.Series(['col']*ncol) + '_' + pd.Series(range(ncol)).apply(str)
+        columns = pd.Series(['col'] * ncol) + '_' + pd.Series(
+            range(ncol)).apply(str)
     return_df = pd.DataFrame()
 
     for i, name in zip(index, columns):
-        return_df[name] = series.apply(lambda x: _select_index(x, i, otherwise))
+        return_df[name] = series.apply(
+            lambda x: _select_index(x, i, otherwise))
     return return_df

@@ -2,6 +2,7 @@
 
 import numpy as np
 
+
 class Possibly(object):
     """Cature Exception if function exception occurred
 
@@ -25,11 +26,13 @@ class Possibly(object):
                 if not self.quiet:
                     print(e)
             return result
+
         return result_func
 
     @classmethod
     def possibly(cls, func):
         """ class method for Catch all Function Exception """
+
         def result_func(*args, **kargs):
             try:
                 result = func(*args, **kargs)
@@ -38,7 +41,9 @@ class Possibly(object):
                 if not cls.quiet_all:
                     print(e)
             return result
+
         return result_func
+
 
 class Safely(object):
     """Cature Exception if function exception occurred
@@ -67,11 +72,13 @@ class Safely(object):
                 if not self.quiet:
                     print(e)
             return result_dict
+
         return result_func
 
     @classmethod
     def safely(cls, func):
         """ class method for Catch all Function Exception """
+
         def result_func(*args, **kargs):
             result_dict = {}
             try:
@@ -83,4 +90,5 @@ class Safely(object):
                 if not cls.quiet_all:
                     print(e)
             return result_dict
+
         return result_func

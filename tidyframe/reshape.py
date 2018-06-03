@@ -2,6 +2,7 @@
 
 import pandas as pd
 
+
 def gather(df, key_col=None, key='key', value='value', dropna=True):
     """Gather column to key-value pairs
 
@@ -44,6 +45,7 @@ def gather(df, key_col=None, key='key', value='value', dropna=True):
         df_return = df_return.to_frame().reset_index()
         df_return.columns = [raw_index_name, key, value]
         return df_return
+
 
 def spread(df, row_index, key):
     """

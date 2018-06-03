@@ -15,7 +15,10 @@ Installation
 ------------
 
 ```sh
-pip install git+https://github.com/Jhengsh/tidyframe.git
+# Using PyPI
+pip3 install tidyframe
+# Or using git
+pip3 install git+https://github.com/Jhengsh/tidyframe.git
 ```
 
 Tuturial

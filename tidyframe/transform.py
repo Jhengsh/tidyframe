@@ -96,7 +96,7 @@ def unnest(df, drop=[], copy=False):
             repeat_times = list(map(lambda x: x.shape[0], df[columns_nest[0]]))
             columns_group = df_check.columns.difference(columns_nest)
             df_return = pd.DataFrame(
-                df[columns_group].as_matrix().repeat(repeat_times, axis=0),
+                df[columns_group].values.repeat(repeat_times, axis=0),
                 columns=columns_group)
             df_return = pd.concat(
                 [df_return,
@@ -128,7 +128,7 @@ def unnest(df, drop=[], copy=False):
         repeat_times = df[column_series[0]].map(len)
         columns_group = df.columns.difference(column_series)
         df_return = pd.DataFrame(
-            df[columns_group].as_matrix().repeat(repeat_times, axis=0),
+            df[columns_group].values.repeat(repeat_times, axis=0),
             columns=columns_group)
         df_series = pd.concat(
             [*df[column_series[0]].map(lambda x: pd.DataFrame(x))], axis=0)

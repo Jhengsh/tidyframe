@@ -99,8 +99,11 @@ def unnest(df, drop=[], copy=False):
                 df[columns_group].values.repeat(repeat_times, axis=0),
                 columns=columns_group)
             df_return = pd.concat(
-                [df_return,
-                 pd.concat([*df[columns_nest[0]].tolist()])],
+                [
+                    df_return.reset_index(drop=True),
+                    pd.concat([*df[columns_nest[0]].tolist()
+                               ]).reset_index(drop=True)
+                ],
                 axis=1)
             if copy:
                 return cp.deepcopy(
@@ -218,10 +221,10 @@ def rolling(list_object, window_size, missing=np.NaN):
     assert window_size != 0, "window_size must be not equal zero"
     list_return = []
     if window_size > 0:
-        ele_list = [missing] * window_size
         for i, x in enumerate(list_object):
             if i < (window_size - 1):
-                ele_list[window_size - i - 1] = x
+                ele_list = [missing] * window_size
+                ele_list[-1 * (i + 1):] = list_object[0:(i + 1)]
                 list_return.append(ele_list.copy())
             else:
                 list_return.append(list_object[(i - window_size + 1):i + 1])

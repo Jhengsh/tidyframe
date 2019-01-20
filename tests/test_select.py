@@ -9,20 +9,40 @@ df = pd.DataFrame(
 
 
 def test_select_basic():
-    tools.select(df, columns=['b', 'd'])
+    assert tools.select(
+        df, columns=['b', 'd']).shape[1] == 2, 'select column must equal 2'
 
 
 def test_select_columns_minus():
-    tools.select(df, columns_minus=['b', 'd'])
+    assert tools.select(
+        df, columns_minus=['b',
+                           'd']).shape[1] == 3, 'select column must equal 3'
 
 
 def test_select_deepcopy():
-    tools.select(df, columns_minus=['b', 'd'], copy=True)
+    assert tools.select(
+        df, columns_minus=['b', 'd'],
+        copy=True).shape[1] == 3, 'select column must equal 3'
 
 
 def test_select_columns_minus():
-    tools.select(df, columns_minus=['b', 'd'])
+    assert tools.select(
+        df, columns_minus=['b',
+                           'd']).shape[1] == 3, 'select column must equal 3'
 
 
 def test_select_columns_between():
-    tools.select(df, columns_between=['b', 'd'])
+    assert tools.select(
+        df, columns_between=['b',
+                             'd']).shape[1] == 3, 'select column must equal 3'
+
+
+def test_select_pattern():
+    assert tools.select(
+        df, pattern='[a|b]').shape[1] == 2, 'select column must equal 2'
+
+
+def test_select_pattern_list():
+    assert tools.select(
+        df, pattern=['[a|b]',
+                     '[c|d]']).shape[1] == 4, 'select column must equal 4'

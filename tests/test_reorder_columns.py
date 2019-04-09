@@ -41,3 +41,10 @@ def test_basic_reorder_columns():
 
 def test_basic_reorder_columns_pattern():
     reorder_columns(df, pattern='^d')
+
+
+def test_reorder_columns_unknown_column():
+    df = pd.DataFrame({"a": [], "b": [], "c": [], "d": [], "e": []})
+    new_column_order = ['a', 'g', 'e', 'f']
+    assert '/'.join(reorder_columns(
+        df, columns=new_column_order).columns) == 'a/e/b/c/d'

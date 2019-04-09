@@ -76,6 +76,7 @@ def reorder_columns(df, columns=None, pattern=None):
             filter(lambda x: re.search(pattern, x), df.columns))
     else:
         reorder_columns = copy(list(columns))
+        reorder_columns = [x for x in columns if df.columns.contains(x)]
     raw_columns = df.columns.copy()
     reorder_columns.extend(raw_columns.difference(reorder_columns).tolist())
     return df[reorder_columns]

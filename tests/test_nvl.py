@@ -19,3 +19,7 @@ def test_nvl_int():
 
 def test_nvl_str():
     nvl(None, 'abc')
+
+
+def test_nvl_int_v2():
+    nvl(1, 10)

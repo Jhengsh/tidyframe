@@ -1,8 +1,6 @@
 import pandas as pd
 from sqlalchemy import MetaData, Table, Column, Integer, Float, NVARCHAR, CHAR, DATETIME, BOOLEAN
 
-meta = MetaData()
-
 
 def create_table_object(df,
                         con,
@@ -32,6 +30,7 @@ def create_table_object(df,
     -------
     sqlalchemy Table object
     """
+    meta = MetaData(bind=con)
     column_list = []
     for x in df:
         if x in primary_key:

@@ -241,3 +241,31 @@ def rolling(list_object, window_size, missing=np.NaN):
             else:
                 list_return.append(list_object[i:i - window_size])
         return list_return
+
+
+def add_columns(df, columns, default=pd.np.nan, deepcopy=True):
+    """
+    Add column if column is no exist
+
+    Parameters
+    ----------
+    df : pandas DataFrame
+    columns : list, add column names
+    default : list or a object(defalut: NaN)
+    deepcopy: bool, deepcopy df or not(default: True)
+
+    Returns
+    -------
+    pandas DataFrame
+    """
+    if deepcopy:
+        df_cp = cp.deepcopy(df)
+    else:
+        df_cp = df
+    for i, x in enumerate(columns):
+        if x not in df.columns:
+            if isinstance(default, list):
+                df_cp[x] = default[i]
+            else:
+                df_cp[x] = default
+    return df_cp

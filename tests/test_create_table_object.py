@@ -15,11 +15,19 @@ df['g'] = [True, False, True]
 
 
 def test_create_table_object_basic():
-    table_object = create_table_object(
-        df,
-        engine,
-        'test_table',
-        primary_key=['a'],
-        nvarchar_columns=['e'],
-        non_nullable_columns=['d'],
-        default_char_type=VARCHAR)
+    table_object = create_table_object(df,
+                                       engine,
+                                       'test_table',
+                                       primary_key=['a'],
+                                       nvarchar_columns=['e'],
+                                       non_nullable_columns=['d'])
+
+
+def test_create_table_object_basic2():
+    table_object = create_table_object(df,
+                                       engine,
+                                       'test_table',
+                                       primary_key=['a'],
+                                       nvarchar_columns=['e'],
+                                       non_nullable_columns=['d'],
+                                       default_char_type=VARCHAR)

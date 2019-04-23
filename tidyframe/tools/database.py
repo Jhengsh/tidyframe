@@ -1,3 +1,4 @@
+from datetime import datetime
 import pandas as pd
 from sqlalchemy import MetaData, Table, Column, Integer, Float, NVARCHAR, CHAR, DATETIME, BOOLEAN
 
@@ -44,56 +45,59 @@ def create_table_object(df,
                 nullable = False
             else:
                 nullable = True
-        if dtype is not None and x in dtype:
-            each_column = Column(x,
-                                 dtype[x],
-                                 primary_key=is_primary_key,
-                                 nullable=nullable)
-        elif df[x].dtype.char == 'O':
-            length = df[x].fillna('').apply(lambda x: len(x)).max()
-            if x in nvarchar_columns or all_nvarchar:
+        try:
+            if dtype is not None and x in dtype:
                 each_column = Column(x,
-                                     NVARCHAR(length * 2),
+                                     dtype[x],
+                                     primary_key=is_primary_key,
+                                     nullable=nullable)
+            elif df[x].dtype.char == 'O':
+                length = df[x].fillna('').apply(lambda x: len(str(x))).max()
+                if x in nvarchar_columns or all_nvarchar:
+                    each_column = Column(x,
+                                         NVARCHAR(length * 2),
+                                         primary_key=is_primary_key,
+                                         nullable=nullable)
+                else:
+                    each_column = Column(x,
+                                         default_char_type(length),
+                                         primary_key=is_primary_key,
+                                         nullable=nullable)
+            elif df[x].dtype.char == 'M':
+                each_column = Column(x,
+                                     DATETIME(),
+                                     primary_key=is_primary_key,
+                                     nullable=nullable)
+            elif df[x].dtype.char == 'l':
+                each_column = Column(x,
+                                     default_int_type(),
+                                     primary_key=is_primary_key,
+                                     nullable=nullable)
+            elif df[x].dtype.char == 'd':
+                if con.name == 'mysql':
+                    from sqlalchemy.dialects.mysql import DOUBLE
+                    each_column = Column(x,
+                                         DOUBLE(asdecimal=False),
+                                         nullable=nullable)
+                elif con.name == 'postgresql':
+                    from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
+                    each_column = Column(x, DOUBLE_PRECISION())
+                else:
+                    each_column = Column(x,
+                                         Float(asdecimal=False),
+                                         nullable=nullable)
+            elif df[x].dtype.str == '|b1':
+                each_column = Column(x,
+                                     BOOLEAN(),
                                      primary_key=is_primary_key,
                                      nullable=nullable)
             else:
                 each_column = Column(x,
-                                     default_char_type(length),
+                                     NVARCHAR(255),
                                      primary_key=is_primary_key,
                                      nullable=nullable)
-        elif df[x].dtype.char == 'M':
-            each_column = Column(x,
-                                 DATETIME(),
-                                 primary_key=is_primary_key,
-                                 nullable=nullable)
-        elif df[x].dtype.char == 'l':
-            each_column = Column(x,
-                                 default_int_type(),
-                                 primary_key=is_primary_key,
-                                 nullable=nullable)
-        elif df[x].dtype.char == 'd':
-            if con.name == 'mysql':
-                from sqlalchemy.dialects.mysql import DOUBLE
-                each_column = Column(x,
-                                     DOUBLE(asdecimal=False),
-                                     nullable=nullable)
-            elif con.name == 'postgresql':
-                from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
-                each_column = Column(x, DOUBLE_PRECISION())
-            else:
-                each_column = Column(x,
-                                     Float(asdecimal=False),
-                                     nullable=nullable)
-        elif df[x].dtype.str == '|b1':
-            each_column = Column(x,
-                                 BOOLEAN(),
-                                 primary_key=is_primary_key,
-                                 nullable=nullable)
-        else:
-            each_column = Column(x,
-                                 NVARCHAR(255),
-                                 primary_key=is_primary_key,
-                                 nullable=nullable)
+        except Exception as e:
+            raise Exception('Column {}: {}'.format(x, str(e)))
         column_list.append(each_column)
     if create:
         table_object_target.create()
@@ -110,7 +114,7 @@ def copy_table_schema(source_table,
                       create=False,
                       add_columns=[]):
     """
-    copy table schema from database to another database
+    Copy table schema from database to another database
 
     Parameters
     ----------
@@ -148,3 +152,46 @@ def copy_table_schema(source_table,
         return True
     else:
         return table_object_target
+
+
+def fit_dataframe_to_table_schema(df, table):
+    """
+    Fit DataFrame to table schema, let you can use DataFrame.to_sql directly if table is exist
+    Limit: not tranform column dtype if python_type is str and column dtype is object 
+
+    Parameters
+    ----------
+    df : Pandas DataFrame
+    table : Table object 
+
+    Returns
+    -------
+    None
+    """
+    for x in table.columns:
+        if (x.type.python_type == str and df[x.name].dtype == 'object') or (
+                x.type.python_type == float and df[x.name].dtype == 'float64'
+        ) or (x.type.python_type == int and df[x.name].dtype == 'int64') or (
+                x.type.python_type == int and df[x.name].dtype == 'int32') or (
+                    x.type.python_type == bool and df[x.name].dtype == 'bool'
+                ) or (x.type.python_type == datetime
+                      and df[x.name].dtype == 'datetime64[ns]'):
+            pass
+        elif x.type.python_type == str and df[x.name].dtype != 'object':
+            df[x.name] = df[x.name].astype(str)
+        elif x.type.python_type == float and df[
+                x.name].dtype != 'float64' and df[x.name].dtype != 'float32':
+            df[x.name] = df[x.name].astype(float)
+        elif x.type.python_type == int and df[x.name].dtype != 'int64' and df[
+                x.name].dtype != 'int32':
+            df[x.name] = df[x.name].astype(int)
+        elif x.type.python_type == bool and df[x.name].dtype != 'bool':
+            df[x.name] = df[x.name].astype(bool)
+        elif x.type.python_type == datetime and df[
+                x.name].dtype != 'datetime64[ns]':
+            df[x.name] = pd.to_datetime(df[x.name])
+        else:
+            raise Exception(
+                'Column {} not deal with python_type {} and dtype {}'.
+                format(x.name, str(x.type.python_type), df[x.name].dtype))
+    return None

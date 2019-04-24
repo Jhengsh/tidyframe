@@ -3,7 +3,7 @@ import pandas as pd
 from sqlalchemy import MetaData, Table, Column, Integer, Float, NVARCHAR, CHAR, DATETIME, BOOLEAN
 
 
-def create_table_object(df,
+def create_table(df,
                         con,
                         name,
                         primary_key=[],
@@ -178,7 +178,9 @@ def fit_dataframe_to_table_schema(df, table):
                       and df[x.name].dtype == 'datetime64[ns]'):
             pass
         elif x.type.python_type == str and df[x.name].dtype != 'object':
-            df[x.name] = df[x.name].astype(str)
+            df[x.name] = [
+                pd.np.nan if pd.np.isnan(x) else str(x) for x in df[x.name]
+            ]
         elif x.type.python_type == float and df[
                 x.name].dtype != 'float64' and df[x.name].dtype != 'float32':
             df[x.name] = df[x.name].astype(float)
@@ -192,6 +194,6 @@ def fit_dataframe_to_table_schema(df, table):
             df[x.name] = pd.to_datetime(df[x.name])
         else:
             raise Exception(
-                'Column {} not deal with python_type {} and dtype {}'.
-                format(x.name, str(x.type.python_type), df[x.name].dtype))
+                'Column {} not deal with python_type {} and dtype {}'.format(
+                    x.name, str(x.type.python_type), df[x.name].dtype))
     return None

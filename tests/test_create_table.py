@@ -1,7 +1,7 @@
 import pandas as pd
 from sqlalchemy import create_engine, VARCHAR
 from datetime import datetime
-from tidyframe.tools import create_table_object
+from tidyframe.tools import create_table
 
 engine = create_engine('sqlite:///testing_sqlite.db')
 df = pd.DataFrame()
@@ -14,8 +14,8 @@ df['f'] = [datetime.now(), None, datetime.now()]
 df['g'] = [True, False, True]
 
 
-def test_create_table_object_basic():
-    table_object = create_table_object(df,
+def test_create_table_basic():
+    table_object = create_table(df,
                                        engine,
                                        'test_table',
                                        primary_key=['a'],
@@ -23,8 +23,8 @@ def test_create_table_object_basic():
                                        non_nullable_columns=['d'])
 
 
-def test_create_table_object_basic2():
-    table_object = create_table_object(df,
+def test_create_table_basic2():
+    table_object = create_table(df,
                                        engine,
                                        'test_table',
                                        primary_key=['a'],

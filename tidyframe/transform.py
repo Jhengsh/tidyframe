@@ -89,22 +89,21 @@ def unnest(df, drop=[], copy=False):
     drop: list of column which do not return
     """
     df_check = df.applymap(lambda x: isinstance(x, pd.DataFrame))
-    columns_nest = df_check.columns[df_check.sum() == df_check.shape[
-        0]].tolist()
+    columns_nest = df_check.columns[df_check.sum() ==
+                                    df_check.shape[0]].tolist()
     if len(columns_nest) > 0:
         if len(columns_nest) == 1:
             repeat_times = list(map(lambda x: x.shape[0], df[columns_nest[0]]))
             columns_group = df_check.columns.difference(columns_nest)
-            df_return = pd.DataFrame(
-                df[columns_group].values.repeat(repeat_times, axis=0),
-                columns=columns_group)
-            df_return = pd.concat(
-                [
-                    df_return.reset_index(drop=True),
-                    pd.concat([*df[columns_nest[0]].tolist()
-                               ]).reset_index(drop=True)
-                ],
-                axis=1)
+            df_return = pd.DataFrame(df[columns_group].values.repeat(
+                repeat_times, axis=0),
+                                     columns=columns_group)
+            df_return = pd.concat([
+                df_return.reset_index(drop=True),
+                pd.concat([*df[columns_nest[0]].tolist()
+                           ]).reset_index(drop=True)
+            ],
+                                  axis=1)
             if copy:
                 return cp.deepcopy(
                     df_return[df_return.columns.difference(drop)])
@@ -115,8 +114,8 @@ def unnest(df, drop=[], copy=False):
             columns_value = df.columns.difference(columns_nest).tolist()
             list_df_tmp = []
             for x in df.itertuples():
-                df_tmp = pd.concat(
-                    [x[dict_col[col]] for col in columns_nest], axis=1)
+                df_tmp = pd.concat([x[dict_col[col]] for col in columns_nest],
+                                   axis=1)
                 for col in columns_value:
                     df_tmp[col] = x[dict_col[col]]
                 list_df_tmp.append(df_tmp)
@@ -124,15 +123,14 @@ def unnest(df, drop=[], copy=False):
             return df_return[pd.Index(columns_value).append(
                 df_return.columns.difference(columns_value))]
     else:
-        column_series = df.columns[
-            df.applymap(lambda x: isinstance(x, (pd.Series, np.ndarray, list)))
-            .sum() > 0].tolist()
+        column_series = df.columns[df.applymap(lambda x: isinstance(
+            x, (pd.Series, np.ndarray, list))).sum() > 0].tolist()
         assert len(column_series) == 1, "Must exist one list of list Series"
         repeat_times = df[column_series[0]].map(len)
         columns_group = df.columns.difference(column_series)
-        df_return = pd.DataFrame(
-            df[columns_group].values.repeat(repeat_times, axis=0),
-            columns=columns_group)
+        df_return = pd.DataFrame(df[columns_group].values.repeat(repeat_times,
+                                                                 axis=0),
+                                 columns=columns_group)
         df_series = pd.concat(
             [*df[column_series[0]].map(lambda x: pd.DataFrame(x))], axis=0)
         df_return[column_series[0]] = df_series[0].tolist()
@@ -243,7 +241,7 @@ def rolling(list_object, window_size, missing=np.NaN):
         return list_return
 
 
-def add_columns(df, columns, default=pd.np.nan, deepcopy=True):
+def add_columns(df, columns, default=pd.np.nan, deepcopy=False):
     """
     Add column if column is no exist
 
@@ -268,4 +266,7 @@ def add_columns(df, columns, default=pd.np.nan, deepcopy=True):
                 df_cp[x] = default[i]
             else:
                 df_cp[x] = default
-    return df_cp
+    if deepcopy:
+        return df_cp
+    else:
+        return None

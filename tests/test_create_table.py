@@ -12,22 +12,23 @@ df['d'] = [pd.np.nan, 10, 1.4]
 df['e'] = ['adev', pd.NaT, '今天天氣']
 df['f'] = [datetime.now(), None, datetime.now()]
 df['g'] = [True, False, True]
+df['h'] = 2147483647 * 2
 
 
 def test_create_table_basic():
     table_object = create_table(df,
-                                       engine,
-                                       'test_table',
-                                       primary_key=['a'],
-                                       nvarchar_columns=['e'],
-                                       non_nullable_columns=['d'])
+                                engine,
+                                'test_table',
+                                primary_key=['a'],
+                                nvarchar_columns=['e'],
+                                non_nullable_columns=['d'])
 
 
 def test_create_table_basic2():
     table_object = create_table(df,
-                                       engine,
-                                       'test_table',
-                                       primary_key=['a'],
-                                       nvarchar_columns=['e'],
-                                       non_nullable_columns=['d'],
-                                       default_char_type=VARCHAR)
+                                engine,
+                                'test_table',
+                                primary_key=['a'],
+                                nvarchar_columns=['e'],
+                                non_nullable_columns=['d'],
+                                default_char_type=VARCHAR)

@@ -1,19 +1,20 @@
 from datetime import datetime
 import pandas as pd
-from sqlalchemy import MetaData, Table, Column, Integer, Float, NVARCHAR, CHAR, DATETIME, BOOLEAN
+from sqlalchemy import (MetaData, Table, Column, BigInteger, Integer, Float,
+                        NVARCHAR, CHAR, DATETIME, BOOLEAN)
 
 
 def create_table(df,
-                        con,
-                        name,
-                        primary_key=[],
-                        nvarchar_columns=[],
-                        non_nullable_columns=[],
-                        dtype=None,
-                        all_nvarchar=False,
-                        default_char_type=CHAR,
-                        default_int_type=Integer,
-                        create=False):
+                 con,
+                 name,
+                 primary_key=[],
+                 nvarchar_columns=[],
+                 non_nullable_columns=[],
+                 dtype=None,
+                 all_nvarchar=False,
+                 default_char_type=CHAR,
+                 default_int_type=Integer,
+                 create=False):
     """
     Create sqlalchemy Table object for create table in database
 
@@ -35,6 +36,7 @@ def create_table(df,
     """
     meta = MetaData(bind=con)
     column_list = []
+    int_info = pd.np.iinfo(pd.np.int32)
     for x in df:
         if x in primary_key:
             is_primary_key = True
@@ -69,10 +71,20 @@ def create_table(df,
                                      primary_key=is_primary_key,
                                      nullable=nullable)
             elif df[x].dtype.char == 'l':
-                each_column = Column(x,
-                                     default_int_type(),
-                                     primary_key=is_primary_key,
-                                     nullable=nullable)
+                max_column_value = df[x].max()
+                min_column_value = df[x].min()
+                if pd.notna(max_column_value) and pd.notna(
+                        min_column_value
+                ) and min_column_value <= int_info.min and max_column_value >= int_info.max:
+                    each_column = Column(x,
+                                         BigInteger(),
+                                         primary_key=is_primary_key,
+                                         nullable=nullable)
+                else:
+                    each_column = Column(x,
+                                         default_int_type(),
+                                         primary_key=is_primary_key,
+                                         nullable=nullable)
             elif df[x].dtype.char == 'd':
                 if con.name == 'mysql':
                     from sqlalchemy.dialects.mysql import DOUBLE

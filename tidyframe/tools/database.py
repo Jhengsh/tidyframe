@@ -14,7 +14,7 @@ def create_table(df,
                  all_nvarchar=False,
                  default_char_type=CHAR,
                  default_int_type=Integer,
-                 create=False):
+                 create=True):
     """
     Create sqlalchemy Table object for create table in database
 
@@ -112,7 +112,7 @@ def create_table(df,
             raise Exception('Column {}: {}'.format(x, str(e)))
         column_list.append(each_column)
     if create:
-        table_object_target.create()
+        Table(name, meta, *column_list, extend_existing=True).create()
         return True
     else:
         return Table(name, meta, *column_list, extend_existing=True)

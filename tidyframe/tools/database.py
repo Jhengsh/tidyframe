@@ -14,7 +14,7 @@ def create_table(df,
                  all_nvarchar=False,
                  default_char_type=CHAR,
                  default_int_type=Integer,
-                 create=False):
+                 create=True):
     """
     Create sqlalchemy Table object for create table in database
 
@@ -112,7 +112,7 @@ def create_table(df,
             raise Exception('Column {}: {}'.format(x, str(e)))
         column_list.append(each_column)
     if create:
-        table_object_target.create()
+        Table(name, meta, *column_list, extend_existing=True).create()
         return True
     else:
         return Table(name, meta, *column_list, extend_existing=True)
@@ -180,32 +180,40 @@ def fit_dataframe_to_table_schema(df, table):
     -------
     None
     """
-    for x in table.columns:
-        if (x.type.python_type == str and df[x.name].dtype == 'object') or (
-                x.type.python_type == float and df[x.name].dtype == 'float64'
-        ) or (x.type.python_type == int and df[x.name].dtype == 'int64') or (
-                x.type.python_type == int and df[x.name].dtype == 'int32') or (
-                    x.type.python_type == bool and df[x.name].dtype == 'bool'
-                ) or (x.type.python_type == datetime
-                      and df[x.name].dtype == 'datetime64[ns]'):
-            pass
-        elif x.type.python_type == str and df[x.name].dtype != 'object':
-            df[x.name] = [
-                pd.np.nan if pd.np.isnan(x) else str(x) for x in df[x.name]
-            ]
-        elif x.type.python_type == float and df[
-                x.name].dtype != 'float64' and df[x.name].dtype != 'float32':
-            df[x.name] = df[x.name].astype(float)
-        elif x.type.python_type == int and df[x.name].dtype != 'int64' and df[
-                x.name].dtype != 'int32':
-            df[x.name] = df[x.name].astype(int)
-        elif x.type.python_type == bool and df[x.name].dtype != 'bool':
-            df[x.name] = df[x.name].astype(bool)
-        elif x.type.python_type == datetime and df[
-                x.name].dtype != 'datetime64[ns]':
-            df[x.name] = pd.to_datetime(df[x.name])
-        else:
-            raise Exception(
-                'Column {} not deal with python_type {} and dtype {}'.format(
-                    x.name, str(x.type.python_type), df[x.name].dtype))
-    return None
+    try:
+        for x in table.columns:
+            if (x.type.python_type == str and df[x.name].dtype == 'object'
+                ) or (x.type.python_type == float
+                      and df[x.name].dtype == 'float64') or (
+                          x.type.python_type == int
+                          and df[x.name].dtype == 'int64'
+                      ) or (x.type.python_type == int
+                            and df[x.name].dtype == 'int32') or (
+                                x.type.python_type == bool
+                                and df[x.name].dtype == 'bool') or (
+                                    x.type.python_type == datetime
+                                    and df[x.name].dtype == 'datetime64[ns]'):
+                pass
+            elif x.type.python_type == str and df[x.name].dtype != 'object':
+                df[x.name] = [
+                    pd.np.nan if pd.np.isnan(x) else str(x) for x in df[x.name]
+                ]
+            elif x.type.python_type == float and df[
+                    x.name].dtype != 'float64' and df[
+                        x.name].dtype != 'float32':
+                df[x.name] = df[x.name].astype(float)
+            elif x.type.python_type == int and df[
+                    x.name].dtype != 'int64' and df[x.name].dtype != 'int32':
+                df[x.name] = df[x.name].astype(int)
+            elif x.type.python_type == bool and df[x.name].dtype != 'bool':
+                df[x.name] = df[x.name].astype(bool)
+            elif x.type.python_type == datetime and df[
+                    x.name].dtype != 'datetime64[ns]':
+                df[x.name] = pd.DatetimeIndex(df[x.name]).tz_localize(None)
+            else:
+                raise Exception(
+                    'Column {} not deal with python_type {} and dtype {}'.
+                    format(x.name, str(x.type.python_type), df[x.name].dtype))
+        return None
+    except Exception as e:
+        raise Exception('fit Column {} error: {}'.format(x.name, str(e)))

@@ -21,7 +21,8 @@ def test_create_table_basic():
                                 'test_table',
                                 primary_key=['a'],
                                 nvarchar_columns=['e'],
-                                non_nullable_columns=['d'])
+                                non_nullable_columns=['d'],
+                                create=False)
 
 
 def test_create_table_basic2():
@@ -31,4 +32,16 @@ def test_create_table_basic2():
                                 primary_key=['a'],
                                 nvarchar_columns=['e'],
                                 non_nullable_columns=['d'],
-                                default_char_type=VARCHAR)
+                                default_char_type=VARCHAR,
+                                create=False)
+
+
+def test_create_table_basic3():
+    table_object = create_table(df,
+                                engine,
+                                'test_table_create',
+                                primary_key=['a'],
+                                nvarchar_columns=['e'],
+                                non_nullable_columns=['d'],
+                                default_char_type=VARCHAR,
+                                create=True)

@@ -1,9 +1,9 @@
 import pandas as pd
-from sqlalchemy import create_engine, VARCHAR
+from sqlalchemy import create_engine, VARCHAR, NUMERIC
 from datetime import datetime
 from tidyframe.tools import create_table
 
-engine = create_engine('sqlite:///testing_sqlite.db')
+engine = create_engine('sqlite:///testing_create_table.db')
 df = pd.DataFrame()
 df['a'] = list('abc')
 df['b'] = 1
@@ -17,8 +17,8 @@ df['h'] = 2147483647 * 2
 
 def test_create_table_basic():
     table_object = create_table(df,
-                                engine,
                                 'test_table',
+                                engine,
                                 primary_key=['a'],
                                 nvarchar_columns=['e'],
                                 non_nullable_columns=['d'],
@@ -27,21 +27,20 @@ def test_create_table_basic():
 
 def test_create_table_basic2():
     table_object = create_table(df,
+                                'test_table_create',
                                 engine,
-                                'test_table',
                                 primary_key=['a'],
                                 nvarchar_columns=['e'],
                                 non_nullable_columns=['d'],
-                                default_char_type=VARCHAR,
-                                create=False)
+                                create=True)
 
 
 def test_create_table_basic3():
     table_object = create_table(df,
+                                'test_table_create2',
                                 engine,
-                                'test_table_create',
                                 primary_key=['a'],
                                 nvarchar_columns=['e'],
                                 non_nullable_columns=['d'],
-                                default_char_type=VARCHAR,
+                                base_float_type=NUMERIC(3, 5),
                                 create=True)

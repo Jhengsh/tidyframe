@@ -9,6 +9,7 @@ from .tools.dict import flatten_dict
 from .tools.window import apply_cum
 from .tools.case_when import nvl, coalesce
 from .tools.database import (create_table, copy_table_schema,
+                             load_table_schema, drop_table,
                              fit_dataframe_to_table_schema)
 import tidyframe.tools as tools
 
@@ -17,5 +18,6 @@ __all__ = [
     "add_columns", "spread", "Safely", "Possibly", "tools", 'select',
     'reorder_columns', 'separate', 'combination', 'replace_by_dict',
     'flatten_dict', 'apply_cum', 'nvl', 'coalesce', 'create_table',
-    'copy_table_schema', 'fit_dataframe_to_table_schema'
+    'load_table_schema', 'drop_table', 'copy_table_schema',
+    'fit_dataframe_to_table_schema'
 ]

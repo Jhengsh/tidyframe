@@ -1,20 +1,27 @@
+from copy import deepcopy
 from datetime import datetime
 import pandas as pd
 from sqlalchemy import (MetaData, Table, Column, BigInteger, Integer, Float,
                         NVARCHAR, CHAR, DATETIME, BOOLEAN)
 
 
-def create_table(df,
-                 con,
-                 name,
-                 primary_key=[],
-                 nvarchar_columns=[],
-                 non_nullable_columns=[],
-                 dtype=None,
-                 all_nvarchar=False,
-                 default_char_type=CHAR,
-                 default_int_type=Integer,
-                 create=True):
+def create_table(
+        df,
+        name,
+        con,
+        primary_key=[],
+        nvarchar_columns=[],
+        non_nullable_columns=[],
+        dtype=None,
+        create=True,
+        all_nvarchar=False,
+        base_char_type=CHAR(),
+        base_nchar_type=NVARCHAR(),
+        base_int_type=Integer(),
+        base_bigint_type=BigInteger(),
+        base_float_type=Float(),
+        base_boolean_type=BOOLEAN(),
+):
     """
     Create sqlalchemy Table object for create table in database
 
@@ -56,13 +63,17 @@ def create_table(df,
             elif df[x].dtype.char == 'O':
                 length = df[x].fillna('').apply(lambda x: len(str(x))).max()
                 if x in nvarchar_columns or all_nvarchar:
+                    nchar_type = deepcopy(base_nchar_type)
+                    nchar_type.length = length * 2
                     each_column = Column(x,
-                                         NVARCHAR(length * 2),
+                                         nchar_type,
                                          primary_key=is_primary_key,
                                          nullable=nullable)
                 else:
+                    char_type = deepcopy(base_char_type)
+                    char_type.length = length
                     each_column = Column(x,
-                                         default_char_type(length),
+                                         char_type,
                                          primary_key=is_primary_key,
                                          nullable=nullable)
             elif df[x].dtype.char == 'M':
@@ -77,30 +88,19 @@ def create_table(df,
                         min_column_value
                 ) and min_column_value <= int_info.min and max_column_value >= int_info.max:
                     each_column = Column(x,
-                                         BigInteger(),
+                                         base_bigint_type,
                                          primary_key=is_primary_key,
                                          nullable=nullable)
                 else:
                     each_column = Column(x,
-                                         default_int_type(),
+                                         base_int_type,
                                          primary_key=is_primary_key,
                                          nullable=nullable)
             elif df[x].dtype.char == 'd':
-                if con.name == 'mysql':
-                    from sqlalchemy.dialects.mysql import DOUBLE
-                    each_column = Column(x,
-                                         DOUBLE(asdecimal=False),
-                                         nullable=nullable)
-                elif con.name == 'postgresql':
-                    from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
-                    each_column = Column(x, DOUBLE_PRECISION())
-                else:
-                    each_column = Column(x,
-                                         Float(asdecimal=False),
-                                         nullable=nullable)
+                each_column = Column(x, base_float_type, nullable=nullable)
             elif df[x].dtype.str == '|b1':
                 each_column = Column(x,
-                                     BOOLEAN(),
+                                     base_boolean_type,
                                      primary_key=is_primary_key,
                                      nullable=nullable)
             else:
@@ -123,7 +123,7 @@ def copy_table_schema(source_table,
                       source_con,
                       target_con,
                       omit_collation=False,
-                      create=False,
+                      create=True,
                       add_columns=[]):
     """
     Copy table schema from database to another database
@@ -135,7 +135,7 @@ def copy_table_schema(source_table,
     source_con : sqlalchemy.engine.Engine or sqlite3.Connection, source engine
     target_con : sqlalchemy.engine.Engine or sqlite3.Connection, target engine
     omit_collation : Bool(default: False), omit all char collation
-    create : Bool(default: False), direct create table in database
+    create : Bool(default: True), direct create table in database
     add_columns : list of column object
 
     Returns
@@ -182,11 +182,8 @@ def fit_dataframe_to_table_schema(df, table):
     """
     try:
         for x in table.columns:
-            if (x.type.python_type == str and df[x.name].dtype == 'object'
-                ) or (x.type.python_type == float
-                      and df[x.name].dtype == 'float64') or (
-                          x.type.python_type == int
-                          and df[x.name].dtype == 'int64'
+            if (x.type.python_type == float and df[x.name].dtype == 'float64'
+                ) or (x.type.python_type == int and df[x.name].dtype == 'int64'
                       ) or (x.type.python_type == int
                             and df[x.name].dtype == 'int32') or (
                                 x.type.python_type == bool
@@ -194,9 +191,11 @@ def fit_dataframe_to_table_schema(df, table):
                                     x.type.python_type == datetime
                                     and df[x.name].dtype == 'datetime64[ns]'):
                 pass
-            elif x.type.python_type == str and df[x.name].dtype != 'object':
+            elif x.type.python_type == str:
                 df[x.name] = [
-                    pd.np.nan if pd.np.isnan(x) else str(x) for x in df[x.name]
+                    pd.np.nan
+                    if not isinstance(x, list) and pd.isna(x) else str(x)
+                    for x in df[x.name]
                 ]
             elif x.type.python_type == float and df[
                     x.name].dtype != 'float64' and df[
@@ -217,3 +216,40 @@ def fit_dataframe_to_table_schema(df, table):
         return None
     except Exception as e:
         raise Exception('fit Column {} error: {}'.format(x.name, str(e)))
+
+
+def load_table_schema(name, con):
+    """
+    load table schema from database
+
+    Parameters
+    ----------
+    name : string, name of SQL table
+    con : sqlalchemy.engine.Engine or sqlite3.Connection
+
+    Returns
+    -------
+    sqlalchemy Table object
+    """
+
+    meta = MetaData(bind=con)
+    return Table(name, meta, autoload=True)
+
+
+def drop_table(name, con):
+    """
+    drop table from database
+
+    Parameters
+    ----------
+    name : string, name of SQL table
+    con : sqlalchemy.engine.Engine or sqlite3.Connection
+
+    Returns
+    -------
+    True
+    """
+
+    table = load_table_schema(name, con)
+    table.drop()
+    return True

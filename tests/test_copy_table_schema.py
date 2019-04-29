@@ -22,7 +22,8 @@ def test_copy_table_schema():
                       source_con=engine,
                       target_con=engine_target,
                       add_columns=[Column('last_maintain_date', DateTime())],
-                      omit_collation=True)
+                      omit_collation=True,
+                      create=False)
 
 
 def test_copy_table_schema_create():

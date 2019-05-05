@@ -48,3 +48,11 @@ def test_reorder_columns_unknown_column():
     new_column_order = ['a', 'g', 'e', 'f']
     assert '/'.join(reorder_columns(
         df, columns=new_column_order).columns) == 'a/e/b/c/d'
+
+
+def test_reorder_columns_last_columns():
+    df = pd.DataFrame([{'a': 1, 'b': 1, 'c': 1, 'd': 1, 'e': 2}])
+    df_reorder = reorder_columns(df, ['b', 'c'], last_columns=['a', 'd'])
+    for x, y in zip(df_reorder.columns, ['b', 'c', 'e', 'a', 'd']):
+        assert x == y, "reorder_columns error column must be {} not {}".format(
+            x, y)

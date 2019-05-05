@@ -166,9 +166,9 @@ def copy_table_schema(source_table,
         return table_object_target
 
 
-def fit_dataframe_to_table_schema(df, table):
+def fit_table_schema_type(df, table):
     """
-    Fit DataFrame to table schema, let you can use DataFrame.to_sql directly if table is exist
+    Fit DataFrame to table schema type, let you can use DataFrame.to_sql directly if table is exist
     Limit: not tranform column dtype if python_type is str and column dtype is object 
 
     Parameters

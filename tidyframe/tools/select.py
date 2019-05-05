@@ -34,13 +34,15 @@ def select(df,
         df_return = df[list(raw_col.keys())]
     if columns_between:
         columns_location = {column: i for i, column in enumerate(df.columns)}
-        assert columns_location[columns_between[0]] < columns_location[columns_between[1]], 'first column location must less than second column location'
+        assert columns_location[columns_between[0]] < columns_location[
+            columns_between[
+                1]], 'first column location must less than second column location'
         df_return = df.iloc[:,
                             range(columns_location[columns_between[0]],
                                   columns_location[columns_between[1]] + 1)]
     if pattern and isinstance(pattern, str):
-        columns_want = list(
-            filter(lambda x: re.search(pattern, x), df.columns))
+        columns_want = list(filter(lambda x: re.search(pattern, x),
+                                   df.columns))
         df_return = df[columns_want]
     if pattern and isinstance(pattern, list):
         columns_want = []
@@ -57,7 +59,7 @@ def select(df,
         return df_return
 
 
-def reorder_columns(df, columns=None, pattern=None):
+def reorder_columns(df, columns=None, pattern=None, last_columns=None):
     """
     reorder columns of pandas DataFrame
 
@@ -66,6 +68,7 @@ def reorder_columns(df, columns=None, pattern=None):
     df : Pandas DataFrame
     columns : list which want to head column name(non-use if pattern is not None)
     pattern : regular expression pattern which let selected columns be at head columns
+    last_columns : list which want to last column name
 
     Returns
     -------
@@ -78,5 +81,12 @@ def reorder_columns(df, columns=None, pattern=None):
         reorder_columns = copy(list(columns))
         reorder_columns = [x for x in columns if df.columns.contains(x)]
     raw_columns = df.columns.copy()
-    reorder_columns.extend(raw_columns.difference(reorder_columns).tolist())
+    if last_columns:
+        center_columns = raw_columns.difference(reorder_columns).difference(
+            last_columns).tolist()
+    else:
+        center_columns = raw_columns.difference(reorder_columns).tolist()
+    reorder_columns.extend(center_columns)
+    if last_columns:
+        reorder_columns.extend(last_columns)
     return df[reorder_columns]

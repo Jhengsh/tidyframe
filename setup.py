@@ -5,10 +5,8 @@ Overview
 --------------
 
 + Clean pandas DataFrame to tidy DataFrame
-+ Inspired by tidyr in R
 + Goal: Help you to create **tidy Pandas Dataframe**
 + Wapper window function from DataFrame
-+ Implement R function *tidyr::gather* and *tidyr:spread* using python
 
 """
 
@@ -18,8 +16,7 @@ CLASSIFIERS = [
     'Intended Audience :: Science/Research', 'Programming Language :: Python',
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
-    'Programming Language :: Python :: 3.7',
-    'Programming Language :: Cython',
+    'Programming Language :: Python :: 3.7', 'Programming Language :: Cython',
     'Topic :: Scientific/Engineering'
 ]
 
@@ -37,5 +34,5 @@ setup(
     license='MIT',
     platforms='any',
     python_requires='!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*',
-    install_requires=["pandas", "funcy"],
+    install_requires=["pandas", "funcy", "SQLAlchemy"],
 )

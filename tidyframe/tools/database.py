@@ -3,6 +3,7 @@ from datetime import datetime
 import pandas as pd
 from sqlalchemy import (MetaData, Table, Column, BigInteger, Integer, Float,
                         NVARCHAR, CHAR, DATETIME, BOOLEAN)
+from sqlalchemy.schema import CreateTable
 
 
 def create_table(
@@ -253,3 +254,18 @@ def drop_table(name, con):
     table = load_table_schema(name, con)
     table.drop()
     return True
+
+
+def get_create_table_script(table):
+    """
+    get create table script
+
+    Parameters
+    ----------
+    table : sqlalchemy Table object
+
+    Returns
+    -------
+    string which sqlalchemy create for create table
+    """
+    return CreateTable(table).compile().string

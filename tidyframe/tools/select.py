@@ -2,6 +2,7 @@
 
 import re
 from copy import copy, deepcopy
+from funcy import chunks
 
 
 def select(df,
@@ -90,3 +91,20 @@ def reorder_columns(df, columns=None, pattern=None, last_columns=None):
     if last_columns:
         reorder_columns.extend(last_columns)
     return df[reorder_columns]
+
+
+def get_batch_dataframe(df, batch_size=100):
+    """
+    split DataFrame to sub-DataDrame and each sub-DataDrame row size is batch_size
+
+    Parameters
+    ----------
+    df : Pandas DataFrame
+    batch_size : number of records in each sub-dataframe(default: 100)
+
+    Returns
+    -------
+    DataFrame generator
+    """
+    for min_batch in chunks(batch_size, range(df.shape[0])):
+        yield df.iloc[min_batch, :]

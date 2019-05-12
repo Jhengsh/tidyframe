@@ -10,7 +10,8 @@ from .tools.window import apply_cum
 from .tools.case_when import nvl, coalesce
 from .tools.database import (create_table, copy_table_schema,
                              load_table_schema, drop_table,
-                             fit_table_schema_type, get_create_table_script)
+                             fit_table_schema_type, get_create_table_script,
+                             bulk_insert)
 import tidyframe.tools as tools
 
 __all__ = [
@@ -19,5 +20,6 @@ __all__ = [
     'reorder_columns', 'separate', 'combination', 'replace_by_dict',
     'flatten_dict', 'apply_cum', 'nvl', 'coalesce', 'create_table',
     'load_table_schema', 'drop_table', 'copy_table_schema',
-    'fit_table_schema_type', 'get_create_table_script', 'get_batch_dataframe'
+    'fit_table_schema_type', 'get_create_table_script', 'get_batch_dataframe',
+    'bulk_insert'
 ]

@@ -4,6 +4,7 @@ import pandas as pd
 from sqlalchemy import (MetaData, Table, Column, BigInteger, Integer, Float,
                         NVARCHAR, CHAR, DATETIME, BOOLEAN)
 from sqlalchemy.schema import CreateTable
+from funcy import chunks
 
 
 def create_table(
@@ -269,3 +270,56 @@ def get_create_table_script(table):
     string which sqlalchemy create for create table
     """
     return CreateTable(table).compile().string
+
+
+def _insert_chunk_records(records, table, con):
+    with con.connect() as connection:
+        with connection.begin() as transaction:
+            try:
+                connection.execute(table.insert(), records)
+            except:
+                transaction.rollback()
+                return False
+            else:
+                transaction.commit()
+                return True
+
+
+def bulk_insert(records, table, con, batch_size=10000, only_insert_fail=False):
+    """
+    bulk insert records(list dict)
+
+    Parameters
+    ----------
+    records : list of dict
+    table : sqlalchemy Table object(you can get from function load_table_schema)
+    con : sqlalchemy.engine.Engine or sqlite3.Connection
+    batch_size : batch size for bluk insert
+    only_insert_fail : Bool(default: False), only return record wihich insert fail
+
+    Returns
+    -------
+    list of record which insert fail in batch records or list of record which fail to insert database
+    """
+    list_error_batch = []
+    for each_batch_record in chunks(batch_size, records):
+        if not _insert_chunk_records(each_batch_record, table, con):
+            list_error_batch.append(each_batch_record)
+    return_batch_error_record = []
+    for x in list_error_batch:
+        return_batch_error_record.extend(x)
+    if not only_insert_fail:
+        return return_batch_error_record
+    else:
+        while (batch_size > 10):
+            batch_size = int(batch_size / 2)
+            list_error = bulk_insert(return_batch_error_record,
+                                     table,
+                                     con,
+                                     batch_size=batch_size)
+        return_list_insert_fail_record = []
+        for record in list_error:
+            insert_status = _insert_chunk_records(record, table, con)
+            if not insert_status:
+                return_list_insert_fail_record.append(record)
+        return return_list_insert_fail_record

@@ -15,6 +15,8 @@ import sys
 # sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__),'..','tidyframe'))
 
+# The master toctree document.
+master_doc = 'index'
 
 # -- Project information -----------------------------------------------------
 

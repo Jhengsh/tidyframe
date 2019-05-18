@@ -1,5 +1,5 @@
 import pandas as pd
-from tidyframe.tools import flatten_dict, reorder_columns
+from tidyframe import flatten_dict, reorder_columns
 
 dict_1 = {
     'a': 1,

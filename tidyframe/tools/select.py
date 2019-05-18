@@ -1,6 +1,7 @@
 """ Easy Select Column Method from Pandas DataFrame """
 
 import re
+import numpy as np
 from copy import copy, deepcopy
 from funcy import chunks
 
@@ -24,7 +25,28 @@ def select(df,
 
     Returns
     -------
-    df_return : Pandas DataFrame
+    Pandas DataFrame
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import pandas as pd
+    >>> from tidyframe import select
+    >>> df = pd.DataFrame(np.array(range(10)).reshape(2, 5),
+    ...                   columns=list('abcde'),
+    ...                   index=['row_1', 'row_2'])
+    >>> select(df, columns=['b', 'd'])
+        b  d
+    row_1  1  3
+    row_2  6  8
+    >>> select(df, columns_minus=['b', 'd'])
+        a  c  e
+    row_1  0  2  4
+    row_2  5  7  9
+    >>> select(df, pattern='[a|b]')
+        a  b
+    row_1  0  1
+    row_2  5  6
     """
     if columns:
         df_return = df[columns]
@@ -73,7 +95,17 @@ def reorder_columns(df, columns=None, pattern=None, last_columns=None):
 
     Returns
     -------
-    df_return : Pandas DataFrame
+    Pandas DataFrame
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from tidyframe import reorder_columns
+    >>> df = pd.DataFrame([{'a': 1, 'b': 1, 'c': 1, 'd': 1, 'e': 2}])
+    >>> df_reorder = reorder_columns(df, ['b', 'c'], last_columns=['a', 'd'])
+    >>> df_reorder
+    b  c  e  a  d
+    0  1  1  2  1  1
     """
     if pattern:
         reorder_columns = list(
@@ -105,6 +137,40 @@ def get_batch_dataframe(df, batch_size=100):
     Returns
     -------
     DataFrame generator
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from tidyframe import get_batch_dataframe
+    >>> df = pd.DataFrame()
+    >>> df['col_1'] = list("abcde")
+    >>> df['col_2'] = [1, 2, 3, 4, 5]
+    >>> dfs = [ x for x in get_batch_dataframe(df,2)]
+    >>> dfs[-1]
+        col_1  col_2
+    4       e      5
+    >>> [ x.shape[0] for x in dfs]
+    [2, 2, 1]
     """
     for min_batch in chunks(batch_size, range(df.shape[0])):
         yield df.iloc[min_batch, :]
+
+
+def select_index(x, i, otherwise=np.NaN):
+    """
+    Select by index and Catch all Exception
+
+    Parameters
+    ----------
+    x : array
+    i : index
+    otherwise : fill value if exist exception
+
+    Returns
+    -------
+    x[i] if not exception happen else return otherwise
+    """
+    try:
+        return x[i]
+    except:
+        return otherwise

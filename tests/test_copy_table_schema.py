@@ -1,7 +1,7 @@
 import pandas as pd
 from sqlalchemy import (create_engine, VARCHAR, Column, DateTime)
 from datetime import datetime
-from tidyframe.tools import copy_table_schema
+from tidyframe import copy_table_schema
 
 engine = create_engine('sqlite:///testing_for_source_schema_sqlite.db')
 engine_target = create_engine('sqlite:///testing_for_copy_schema_sqlite.db')

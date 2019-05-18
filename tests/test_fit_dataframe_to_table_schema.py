@@ -1,7 +1,7 @@
 import pandas as pd
 from sqlalchemy import create_engine, Table, MetaData
 from datetime import datetime
-from tidyframe.tools import fit_table_schema_type
+from tidyframe import fit_table_schema_type
 
 engine = create_engine('sqlite:///testing_fit_table_schema_type.db')
 df = pd.DataFrame()

@@ -1,5 +1,5 @@
 import pandas as pd
-from tidyframe.tools import coalesce
+from tidyframe import coalesce
 
 
 def test_coalesce_basic():

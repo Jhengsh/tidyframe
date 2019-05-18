@@ -15,6 +15,21 @@ def nvl(obj, default=pd.np.nan, copy=True):
     Returns
     -------
     series or list or primitive variable types
+
+    Examples
+    ---------
+    >>> import pandas as pd
+    >>> from tidyframe.tools import nvl
+    >>> nvl(None, 10)
+    10
+    >>> test_list = [0, 1, None, pd.np.NaN]
+    >>> test_series = pd.Series(test_list)
+    >>> nvl(test_series, 10)
+    0     0.0
+    1     1.0
+    2    10.0
+    3    10.0
+    dtype: float64
     """
     if isinstance(obj, pd.core.series.Series):
         return obj.fillna(default)

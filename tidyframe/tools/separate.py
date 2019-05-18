@@ -2,26 +2,7 @@
 
 import pandas as pd
 import numpy as np
-
-
-def _select_index(x, i, otherwise=np.NaN):
-    """
-    Select by index and Catch all Exception
-
-    Parameters
-    ----------
-    x : array
-    i : index
-    otherwise : fill value if exist exception
-
-    Returns
-    -------
-    x[i] if not exception happen else return otherwise
-    """
-    try:
-        return x[i]
-    except:
-        return otherwise
+from .select import select_index
 
 
 def separate(series, index=None, columns=None, otherwise=np.NaN):
@@ -37,7 +18,18 @@ def separate(series, index=None, columns=None, otherwise=np.NaN):
 
     Returns
     -------
-    df_return : Pandas DataFrame with split each element of series to column
+    Pandas DataFrame with split each element of series to column
+
+    Examples
+    --------
+    >>> from tidyframe.tools import separate
+    >>> df = pd.DataFrame({'full_string': ['a b c d e z', 'f g h i']},
+    ...                   index=['row_1', 'row_2'])
+    >>> series = df.full_string.str.split(' ')
+    >>> separate(series)
+        col_0 col_1 col_2 col_3 col_4 col_5
+    row_1     a     b     c     d     e     z
+    row_2     f     g     h     i   NaN   NaN
     """
     series = pd.Series(series)
     ncol = series.apply(len).max()
@@ -56,6 +48,5 @@ def separate(series, index=None, columns=None, otherwise=np.NaN):
     return_df = pd.DataFrame()
 
     for i, name in zip(index, columns):
-        return_df[name] = series.apply(
-            lambda x: _select_index(x, i, otherwise))
+        return_df[name] = series.apply(lambda x: select_index(x, i, otherwise))
     return return_df

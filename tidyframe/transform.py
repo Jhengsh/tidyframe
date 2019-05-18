@@ -149,6 +149,27 @@ def apply_window(df, func, partition=None, columns=None):
     func: list of function
     partition: list of partition columns
     columns: list of columns which need to apply func
+
+    Returns
+    -------
+    Pandas Series
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> import numpy as np
+    >>> from tidyframe import apply_window
+    >>> 
+    >>> iris = datasets.load_iris()
+    >>> df = pd.DataFrame({"range":[1,2,3,4,5,6],"target":[1,1,1,2,2,2]})
+    >>> apply_window(df, np.mean, partition=['target'], columns=df.columns[1])
+    0    1
+    1    1
+    2    1
+    3    2
+    4    2
+    5    2
+    Name: target, dtype: int64
     """
     if isinstance(df, pd.core.groupby.DataFrameGroupBy):
         df_g = df
@@ -208,12 +229,60 @@ def to_dataframe(data, index_name='index'):
     ----------
     data : list of pandas Series
     index_name : return index DataFrame column name
+
+    Returns
+    -------
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from tidyframe import to_dataframe
+    >>> list_series = [
+    ...     pd.Series([1, 2], index=['i_1', 'i_2']),
+    ...     pd.Series([3, 4], index=['i_1', 'i_2'])
+    ... ]
+    >>> to_dataframe(list_series)
+       i_1  i_2 index
+    0    1    2  None
+    1    3    4  None
     """
     p_series_to_dict = partial(_series_to_dict, index_name=index_name)
     return pd.DataFrame(list(map(p_series_to_dict, data)))
 
 
 def rolling(list_object, window_size, missing=np.NaN):
+    """
+    Rolling list of object
+
+    Parameters
+    ----------
+    list_object : list of objects
+    window_size : rolling windows size
+    missing : default value if missing value in rolling window
+
+    Returns
+    -------
+    list of list
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from tidyframe import rolling
+    >>> a = list(range(10))
+    >>> pd.DataFrame({'a': a, 'b': rolling(a, 3)})
+    a              b
+    0  0  [nan, nan, 0]
+    1  1    [nan, 0, 1]
+    2  2      [0, 1, 2]
+    3  3      [1, 2, 3]
+    4  4      [2, 3, 4]
+    5  5      [3, 4, 5]
+    6  6      [4, 5, 6]
+    7  7      [5, 6, 7]
+    8  8      [6, 7, 8]
+    9  9      [7, 8, 9]
+    """
+
     assert isinstance(list_object,
                       list), "type of list_object must be equal list"
     assert window_size != 0, "window_size must be not equal zero"
@@ -243,7 +312,7 @@ def rolling(list_object, window_size, missing=np.NaN):
 
 def add_columns(df, columns, default=pd.np.nan, deepcopy=False):
     """
-    Add column if column is no exist
+    Add column if column is not exist
 
     Parameters
     ----------
@@ -255,6 +324,22 @@ def add_columns(df, columns, default=pd.np.nan, deepcopy=False):
     Returns
     -------
     pandas DataFrame
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from tidyframe import add_columns
+    >>> df = pd.DataFrame()
+    >>> df['a'] = [1, 6]
+    >>> df['b'] = [2, 7]
+    >>> df['c'] = [3, 8]
+    >>> df['d'] = [4, 9]
+    >>> df['e'] = [5, 10]
+    >>> add_columns(df, columns=['a', 'f'], default=[30, [10, 11]])
+    >>> df
+    a  b  c  d   e   f
+    0  1  2  3  4   5  10
+    1  6  7  8  9  10  11
     """
     if deepcopy:
         df_cp = cp.deepcopy(df)

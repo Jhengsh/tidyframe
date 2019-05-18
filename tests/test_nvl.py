@@ -1,5 +1,5 @@
 import pandas as pd
-from tidyframe.tools import nvl
+from tidyframe import nvl
 
 
 def test_nvl_series():

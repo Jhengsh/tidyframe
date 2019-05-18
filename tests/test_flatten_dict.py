@@ -1,5 +1,5 @@
 import pandas as pd
-from tidyframe.tools import flatten_dict
+from tidyframe import flatten_dict
 
 dict_1 = {
     'a': 1,

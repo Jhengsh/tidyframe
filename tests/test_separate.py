@@ -1,11 +1,9 @@
 import pandas as pd
 import numpy as np
-from tidyframe.tools import separate
+from tidyframe import separate
 
-df = pd.DataFrame(
-    {
-        'full_string': ['a b c d e z', 'f g h i']
-    }, index=['row_1', 'row_2'])
+df = pd.DataFrame({'full_string': ['a b c d e z', 'f g h i']},
+                  index=['row_1', 'row_2'])
 series = df.full_string.str.split(' ')
 
 

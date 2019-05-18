@@ -73,7 +73,7 @@ def strip_whitespace(source_string):
 
 def strip_whitespace_include_newline(source_string):
     """
-    replace all space character in source_string include \n \r and \t
+    replace all space character in source_string include \\n \\r and \\t
 
     Parameters
     ----------

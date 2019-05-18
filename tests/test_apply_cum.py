@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from tidyframe.tools import apply_cum
+from tidyframe import apply_cum
 
 series = np.random.randint(1, 6, 10)
 
@@ -15,13 +15,17 @@ def test_apply_cum_basic():
 
 
 def test_apply_cum_judge_func():
-    df = apply_cum(
-        pd.Series(series), cum_func, judge_func=lambda x: x > 30, init_value=1)
-    assert df['index_first'][0] and df['index_first'][3], 'index_first is not work'
+    df = apply_cum(pd.Series(series),
+                   cum_func,
+                   judge_func=lambda x: x > 30,
+                   init_value=1)
+    assert df['index_first'][0] and df['index_first'][
+        3], 'index_first is not work'
     assert df['index_last'][2], 'index_last is not work'
 
 
 def test_apply_cum_judge_func_2():
     series = [10, 2, 3, 6, 3]
     df = apply_cum(series, judge_func=lambda x: x > 9)
-    assert df['index_first'][0] and df['index_last'][0], 'first value of index_first and index_last is not True'
+    assert df['index_first'][0] and df['index_last'][
+        0], 'first value of index_first and index_last is not True'

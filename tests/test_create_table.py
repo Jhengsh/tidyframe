@@ -1,7 +1,7 @@
 import pandas as pd
 from sqlalchemy import create_engine, VARCHAR, NUMERIC
 from datetime import datetime
-from tidyframe.tools import create_table
+from tidyframe import create_table
 
 engine = create_engine('sqlite:///testing_create_table.db')
 df = pd.DataFrame()

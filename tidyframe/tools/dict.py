@@ -18,6 +18,29 @@ def flatten_dict(source_dict, name_delimiter='_', inner_name=False):
     Returns
     -------
     flatten dict
+
+    Examples
+    --------
+    >>> from tidyframe import flatten_dict
+    >>> nest_dict = {
+    ...     'a': 1,
+    ...     'b': [1, 2],
+    ...     'c': {
+    ...         'cc1': 3,
+    ...         'cc2': 4
+    ...     },
+    ...     'd': {
+    ...         'd1': 5,
+    ...         'd2': {
+    ...             'dd1': 6,
+    ...             'dd2': 7
+    ...         }
+    ...     }
+    ... }
+    >>> flatten_dict(nest_dict)
+    {'a': 1, 'b': [1, 2], 'c_cc1': 3, 'c_cc2': 4, 'd_d1': 5, 'd_d2_dd1': 6, 'd_d2_dd2': 7}
+    >>> flatten_dict(nest_dict, inner_name=True)
+    {'a': 1, 'b': [1, 2], 'cc1': 3, 'cc2': 4, 'd1': 5, 'dd1': 6, 'dd2': 7}
     """
     assert isinstance(source_dict, dict), "import source_dict is not dict"
     json_name = {}

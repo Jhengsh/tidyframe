@@ -41,7 +41,42 @@ def create_table(
 
     Returns
     -------
-    sqlalchemy Table object
+    sqlalchemy Table object or True
+
+    Example
+    -------
+    >>> import pandas as pd
+    >>> from sqlalchemy import create_engine
+    >>> from datetime import datetime
+    >>> from tidyframe.tools import create_table
+    >>>
+    >>> engine = create_engine('sqlite:///test_for_create_table.db')
+    >>> df = pd.DataFrame()
+    >>> df['a'] = list('abc')
+    >>> df['b'] = 1
+    >>> df['c'] = 1.3
+    >>> df['d'] = [pd.np.nan, 10, 1.4]
+    >>> df['e'] = ['adev', pd.NaT, '今天天氣']
+    >>> df['f'] = [datetime.now(), None, datetime.now()]
+    >>> df['g'] = [True, False, True]
+    >>> df['h'] = 2147483647 * 2
+    >>> create_table(df,
+    ...              'test_table',
+    ...              engine,
+    ...              primary_key=['a'],
+    ...              nvarchar_columns=['e'],
+    ...              non_nullable_columns=['d'],
+    ...              create=False)
+    Table('test_table', MetaData(bind=Engine(sqlite:///test_for_create_table.db)), Column('a', CHAR(length=1), table=<test_table>, primary_key=True, nullable=False), Column('b', Integer(), table=<test_table>), Column('c', Float(), table=<test_table>), Column('d', Float(), table=<test_table>, nullable=False), Column('e', NVARCHAR(length=8), table=<test_table>), Column('f', DATETIME(), table=<test_table>), Column('g', BOOLEAN(), table=<test_table>), Column('h', Integer(), table=<test_table>), schema=None)
+    >>>
+    >>> create_table(df,
+    ...              'test_table_create',
+    ...              engine,
+    ...              primary_key=['a'],
+    ...              nvarchar_columns=['e'],
+    ...              non_nullable_columns=['d'],
+    ...              create=True)
+    True
     """
     meta = MetaData(bind=con)
     column_list = []
@@ -143,6 +178,37 @@ def copy_table_schema(source_table,
     Returns
     -------
     sqlalchemy Table object or True
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from sqlalchemy import (create_engine, VARCHAR, Column, DateTime)
+    >>> from datetime import datetime
+    >>> from tidyframe import copy_table_schema
+    >>> 
+    >>> engine = create_engine('sqlite:///source.db')
+    >>> engine_target = create_engine('sqlite:///target.db')
+    >>> df = pd.DataFrame()
+    >>> df['a'] = list('abc')
+    >>> df['b'] = 1
+    >>> df['c'] = 1.3
+    >>> df['d'] = [pd.np.nan, 10, 1.4]
+    >>> df['e'] = ['adev', pd.NaT, '今天天氣']
+    >>> df['f'] = [datetime.now(), None, datetime.now()]
+    >>> df['g'] = [True, False, True]
+    >>> df.shape
+    (3, 7)
+    >>> df.to_sql('raw_table', engine, index=False)
+    >>> copy_table_schema('raw_table',
+    ...                   'target_table',
+    ...                   source_con=engine,
+    ...                   target_con=engine_target,
+    ...                   add_columns=[Column('last_maintain_date', DateTime())],
+    ...                   omit_collation=True,
+    ...                   create=True)
+    True
+    >>> pd.read_sql_table('target_table', engine_target).shape
+    (0, 8)
     """
     meta_source = MetaData(bind=source_con)
     meta_target = MetaData(bind=target_con)
@@ -232,6 +298,25 @@ def load_table_schema(name, con):
     Returns
     -------
     sqlalchemy Table object
+
+    Example
+    -------
+    >>> import pandas as pd
+    >>> from sqlalchemy import (create_engine, Table, MetaData)
+    >>> from tidyframe import (load_table_schema, create_table)
+    >>> 
+    >>> engine = create_engine('sqlite:///load_table_schema.db')
+    >>> num_row = 100000
+    >>> df = pd.DataFrame()
+    >>> df['a'] = ['a'] * num_row
+    >>> df['b'] = ['b'] * num_row
+    >>> df['c'] = ['c'] * num_row
+    >>> create_table(df, 'test_table', engine, create=True)
+    True
+    >>> records = df.to_dict('record')
+    >>> table_b = load_table_schema('test_table', engine)
+    >>> table_b
+    Table('test_table', MetaData(bind=Engine(sqlite:///load_table_schema.db)), Column('a', CHAR(length=1), table=<test_table>), Column('b', CHAR(length=1), table=<test_table>), Column('c', CHAR(length=1), table=<test_table>), schema=None
     """
 
     meta = MetaData(bind=con)
@@ -249,6 +334,18 @@ def drop_table(name, con):
 
     Returns
     -------
+    True
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from sqlalchemy import create_engine
+    >>> from tidyframe import drop_table
+    >>> 
+    >>> engine = create_engine("sqlite:///raw_table.db")
+    >>> df = pd.DataFrame([{"a": 1, "b": 2}, {"a": 1, "b": 2}])
+    >>> df.to_sql("raw_table", engine)
+    >>> drop_table("raw_table", engine)
     True
     """
 
@@ -268,6 +365,26 @@ def get_create_table_script(table):
     Returns
     -------
     string which sqlalchemy create for create table
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from sqlalchemy import create_engine
+    >>> from tidyframe import create_table, get_create_table_script
+    >>> 
+    >>> engine = create_engine('sqlite:///testing_get_create_table_script.db')
+    >>> df = pd.DataFrame()
+    >>> df['a'] = list('abc')
+    >>> df['b'] = 1
+    >>> df['c'] = 1.3
+    >>> table = create_table(df,
+    ...                      'test_table',
+    ...                      engine,
+    ...                      primary_key=['a'],
+    ...                      nvarchar_columns=['e'],
+    ...                      non_nullable_columns=['d'],
+    ...                      create=False)
+    >>> create_table_script = get_create_table_script(table)
     """
     return CreateTable(table).compile().string
 
@@ -300,6 +417,40 @@ def bulk_insert(records, table, con, batch_size=10000, only_insert_fail=False):
     Returns
     -------
     list of record which insert fail in batch records or list of record which fail to insert database
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from sqlalchemy import create_engine
+    >>> from tidyframe import (create_table, load_table_schema, bulk_insert)
+    >>> 
+    >>> engine = create_engine("mysql://root:sdysuD4UXaynu84u@127.0.0.1/test_db")
+    >>> df = pd.DataFrame()
+    >>> df["a"] = ["a"] * 10000
+    >>> df["b"] = [1] * 10000
+    >>> df["c"] = [1.3] * 10000
+    >>> 
+    >>> create_table(df, "want_insert_table", engine, create=True)
+    True
+    >>> table = load_table_schema("want_insert_table", engine)
+    >>> 
+    >>> df.iloc[0,0]= "abc"
+    >>> df.iloc[-1,0]= "abc"
+    >>> 
+    >>> insert_fail_records = bulk_insert(df.to_dict("record"),
+    ...                                   table,
+    ...                                   engine,
+    ...                                   batch_size=100)
+    >>> len(insert_fail_records)
+    200
+    >>> 
+    >>> insert_fail_records = bulk_insert(df.to_dict("record"),
+    ...                                   table,
+    ...                                   engine,
+    ...                                   batch_size=100,
+    ...                                   only_insert_fail=True)
+    >>> len(insert_fail_records)
+    2
     """
     list_error_batch = []
     for each_batch_record in chunks(batch_size, records):

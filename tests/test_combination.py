@@ -1,5 +1,5 @@
 import pandas as pd
-from tidyframe.tools import combination
+from tidyframe import combination
 
 df_a = pd.DataFrame({'a1': list('ABC'), 'a2': list('CDE')})
 df_b = pd.DataFrame({'b1': list('01234'), 'b2': list('56789')})

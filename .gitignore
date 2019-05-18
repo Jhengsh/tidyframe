@@ -8,3 +8,4 @@ ipynbs/.ipynb_checkpoints/
 tidyframe/__pycache__/
 tidyframe/tests/__pycache__/
 tests/__pycache__/
+docs/_build

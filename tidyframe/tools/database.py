@@ -198,7 +198,7 @@ def copy_table_schema(source_table,
     >>> df['g'] = [True, False, True]
     >>> df.shape
     (3, 7)
-    >>> df.to_sql('raw_table', engine)
+    >>> df.to_sql('raw_table', engine, index=False)
     >>> copy_table_schema('raw_table',
     ...                   'target_table',
     ...                   source_con=engine,
@@ -208,7 +208,7 @@ def copy_table_schema(source_table,
     ...                   create=True)
     True
     >>> pd.read_sql_table('target_table', engine_target).shape
-    (0, 9)
+    (0, 8)
     """
     meta_source = MetaData(bind=source_con)
     meta_target = MetaData(bind=target_con)

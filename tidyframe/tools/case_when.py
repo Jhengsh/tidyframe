@@ -50,7 +50,7 @@ def nvl(obj, default=pd.np.nan, copy=True):
 
 def coalesce(df, columns, default_value=pd.np.nan):
     """
-    coalesce column by list of column
+    Coalesce column by list of column
 
     Parameters
     ----------
@@ -60,7 +60,22 @@ def coalesce(df, columns, default_value=pd.np.nan):
 
     Returns
     -------
-    return_series : Pandas DataFrame
+    Pandas Series
+
+    Examples
+    ---------
+    >>> import pandas as pd
+    >>> from tidyframe import coalesce
+    >>> df = pd.DataFrame()
+    >>> df['a'] = [None, pd.np.NaN, pd.np.nan, pd.np.nan]
+    >>> df['b'] = [None, 4, 6, pd.np.nan]
+    >>> df['c'] = [None, pd.np.NaN, 6, pd.np.nan]
+    >>> coalesce(df, ['a', 'b', 'c'], default_value=10)
+    0    10.0
+    1     4.0
+    2     6.0
+    3    10.0
+    Name: a, dtype: float64
     """
     return_series = df[columns[0]]
     for colmun in columns[1:]:

@@ -1,3 +1,5 @@
+""" Wapper SQLAlchemy function to help you create table, insert table, drop table easily. """
+
 from copy import deepcopy
 from datetime import datetime
 import pandas as pd
@@ -48,7 +50,7 @@ def create_table(
     >>> import pandas as pd
     >>> from sqlalchemy import create_engine
     >>> from datetime import datetime
-    >>> from tidyframe.tools import create_table
+    >>> from tidyframe import create_table
     >>>
     >>> engine = create_engine('sqlite:///test_for_create_table.db')
     >>> df = pd.DataFrame()
@@ -236,8 +238,8 @@ def copy_table_schema(source_table,
 
 def fit_table_schema_type(df, table):
     """
-    Fit DataFrame to table schema type, let you can use DataFrame.to_sql directly if table is exist
-    Limit: not tranform column dtype if python_type is str and column dtype is object 
+    Fit DataFrame to table schema type, let you can use DataFrame.to_sql directly if table is exist.
+    Limit: Not tranform column dtype if python_type is str and column dtype is object
 
     Parameters
     ----------

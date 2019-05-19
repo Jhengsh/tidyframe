@@ -5,8 +5,12 @@
 Overview
 --------
 
-+ Clean pandas DataFrame to tidy DataFrame
++ Clean Pandas DataFrame to tidy DataFrame
 + Goal: Help you to create **tidy Pandas Dataframe**
++ Wapper SQLAlchemy function to help you create table, insert table, drop table easily
++ Make tranform nest dictionary easily
++ Make select columns, reorder columns easily
++ Make coalesce columns easily
 + Wapper window function from DataFrame
 
 Installation
@@ -19,7 +23,21 @@ pip3 install tidyframe
 pip3 install git+https://github.com/Jhengsh/tidyframe.git
 ```
 
+Documentation
+-------------
+
+Latest documentation is at:
+
+https://tidyframe.readthedocs.io/en/latest/
+
 Tuturial
 --------
 
 + [ipynbs](https://github.com/Jhengsh/tidyframe/tree/master/ipynbs)
+
+
+License
+-------
+
+tidyframe is distributed under the `MIT license
+<http://www.opensource.org/licenses/mit-license.php>`_.

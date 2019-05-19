@@ -16,7 +16,7 @@ def gather(df, key_col=None, key='key', value='value', dropna=True):
 
     Returns
     -------
-    df_return : Pandas DataFrame
+    Pandas DataFrame
     """
     if key_col is None:
         key_col = df.columns
@@ -59,7 +59,7 @@ def spread(df, row_index, key):
 
     Returns
     -------
-    df_return : Pandas DataFrame
+    Pandas DataFrame
     """
     list_index = []
     if isinstance(row_index, list):

@@ -6,12 +6,13 @@
 Welcome to TidyFrame's documentation!
 =====================================
 
-TidyFrame help clean data to tidy DadaFrame quickly
+TidyFrame help clean data to tidy DadaFrame quickly. TidyFrame provide some function to help you extract, transform, load data easily.
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
    
+   overview
    tools/dict
    tools/select
    tools/database

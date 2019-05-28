@@ -20,3 +20,10 @@ def test_bulk_insert_basic():
     records = df.to_dict('record')
     table_b = load_table_schema('test_table', engine)
     bulk_insert(records, table_b, engine)
+
+
+def test_bulk_insert_by_thread():
+    create_table(df, 'test_table_thread', engine, create=True)
+    records = df.to_dict('record')
+    table_b = load_table_schema('test_table_thread', engine)
+    bulk_insert(records, table_b, engine, pool_size=5)

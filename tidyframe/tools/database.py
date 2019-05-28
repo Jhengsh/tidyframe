@@ -1,10 +1,12 @@
 """ Wapper SQLAlchemy function to help you create table, insert table, drop table easily. """
 
+import concurrent.futures
 from copy import deepcopy
 from datetime import datetime
 import pandas as pd
 from sqlalchemy import (MetaData, Table, Column, BigInteger, Integer, Float,
                         NVARCHAR, CHAR, DATETIME, BOOLEAN)
+from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.schema import CreateTable
 from funcy import chunks
 
@@ -404,7 +406,27 @@ def _insert_chunk_records(records, table, con):
                 return True
 
 
-def bulk_insert(records, table, con, batch_size=10000, only_insert_fail=False):
+def _insert_chunk_records_for_thread(records, table, con):
+    Session = scoped_session(sessionmaker(bind=con))
+    session = Session()
+    try:
+        session.execute(table.insert(), records)
+    except Exception as e:
+        session.rollback()
+        Session.remove()
+        return records
+    else:
+        session.commit()
+        Session.remove()
+        return []
+
+
+def bulk_insert(records,
+                table,
+                con,
+                batch_size=10000,
+                pool_size=1,
+                only_insert_fail=False):
     """
     bulk insert records(list dict)
 
@@ -414,6 +436,7 @@ def bulk_insert(records, table, con, batch_size=10000, only_insert_fail=False):
     table : sqlalchemy Table object(you can get from function load_table_schema)
     con : sqlalchemy.engine.Engine or sqlite3.Connection
     batch_size : batch size for bluk insert
+    pool_size : Int(default: 1), number of threads for insert records
     only_insert_fail : Bool(default: False), only return record wihich insert fail
 
     Returns
@@ -454,13 +477,23 @@ def bulk_insert(records, table, con, batch_size=10000, only_insert_fail=False):
     >>> len(insert_fail_records)
     2
     """
-    list_error_batch = []
-    for each_batch_record in chunks(batch_size, records):
-        if not _insert_chunk_records(each_batch_record, table, con):
-            list_error_batch.append(each_batch_record)
     return_batch_error_record = []
-    for x in list_error_batch:
-        return_batch_error_record.extend(x)
+    if pool_size == 1:
+        list_error_batch = []
+        for each_batch_record in chunks(batch_size, records):
+            if not _insert_chunk_records(each_batch_record, table, con):
+                list_error_batch.append(each_batch_record)
+        for x in list_error_batch:
+            return_batch_error_record.extend(x)
+    else:
+        with concurrent.futures.ThreadPoolExecutor(
+                max_workers=pool_size) as executor:
+            sync_job = [
+                executor.submit(_insert_chunk_records_for_thread, i, table,
+                                con) for i in chunks(batch_size, records)
+            ]
+            for future in concurrent.futures.as_completed(sync_job):
+                return_batch_error_record.extend(future.result())
     if not only_insert_fail:
         return return_batch_error_record
     else:

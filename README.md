@@ -39,5 +39,4 @@ Tuturial
 License
 -------
 
-tidyframe is distributed under the `MIT license
-<http://www.opensource.org/licenses/mit-license.php>`_.
+tidyframe is distributed under the [MIT license](http://www.opensource.org/licenses/mit-license.php).

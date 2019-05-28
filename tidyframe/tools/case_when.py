@@ -83,3 +83,35 @@ def coalesce(df, columns, default_value=pd.np.nan):
     if not pd.isna(default_value):
         return_series = return_series.fillna(default_value)
     return return_series
+
+
+def fillna(*args):
+    """
+    Fill non null value
+
+    Parameters
+    ----------
+    *args : list or series
+
+    Returns
+    -------
+    list
+
+    Examples
+    ---------
+    >>> import pandas as pd
+    >>> from tidyframe import fillna
+    >>> fillna([None] * 3, [1, pd.np.NaN, None], [1, 2, 3])
+    [1, 2, 3]
+    """
+    list_return = []
+    for x in zip(*args):
+        for i in x:
+            non_null_value = pd.np.nan
+            if pd.notna(i):
+                non_null_value = i
+                list_return.append(i)
+                break
+        if pd.isna(non_null_value):
+            list_return.append(i)
+    return list_return

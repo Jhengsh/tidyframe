@@ -269,6 +269,8 @@ def fit_table_schema_type(df, table):
                     if not isinstance(x, list) and pd.isna(x) else str(x)
                     for x in df[x.name]
                 ]
+                if df[x.name].dtype == 'float64':
+                    df[x.name] = df[x.name].astype(str)
             elif x.type.python_type == float and df[
                     x.name].dtype != 'float64' and df[
                         x.name].dtype != 'float32':

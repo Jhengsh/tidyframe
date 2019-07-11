@@ -310,7 +310,7 @@ def rolling(list_object, window_size, missing=np.NaN):
         return list_return
 
 
-def add_columns(df, columns, default=pd.np.nan, deepcopy=False):
+def add_columns(df, columns, default=None, deepcopy=False):
     """
     Add column if column is not exist
 

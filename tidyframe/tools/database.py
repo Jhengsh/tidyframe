@@ -8,6 +8,7 @@ from sqlalchemy import (MetaData, Table, Column, BigInteger, Integer, Float,
                         NVARCHAR, CHAR, DATETIME, BOOLEAN)
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.schema import CreateTable
+from functools import partial
 from funcy import chunks
 
 
@@ -265,8 +266,7 @@ def fit_table_schema_type(df, table):
                 pass
             elif x.type.python_type == str:
                 df[x.name] = [
-                    None
-                    if not isinstance(x, list) and pd.isna(x) else str(x)
+                    None if not isinstance(x, list) and pd.isna(x) else str(x)
                     for x in df[x.name]
                 ]
             elif x.type.python_type == float and df[
@@ -391,6 +391,82 @@ def get_create_table_script(table):
     >>> create_table_script = get_create_table_script(table)
     """
     return CreateTable(table).compile().string
+
+
+def execute_sql_script(sql_script, con):
+    """
+    execute sql script
+
+    Parameters
+    ----------
+    sql_script : string, sql script
+    con : sqlalchemy.engine.Engine or sqlite3.Connection
+
+    Returns
+    -------
+    Bool, execute sql script result
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from sqlalchemy import create_engine
+    >>> 
+    >>> engine = create_engine("sqlite:///raw_table.db")
+    >>> execute_sql_script("create table a (field_a varchar(10));", con=engine)
+    True
+    """
+    Session = scoped_session(sessionmaker(bind=con))
+    session = Session()
+    try:
+        session.execute(sql_script)
+    except Exception as e:
+        session.rollback()
+        Session.remove()
+        return False
+    else:
+        session.commit()
+        Session.remove()
+        return True
+
+
+def execute_sql_scripts(sql_scripts,
+                        con,
+                        pool_size=1,
+                        return_fail_scripts=True):
+    """
+    execute list of sql script
+
+    Parameters
+    ----------
+    sql_script : string, sql script
+    con : sqlalchemy.engine.Engine or sqlite3.Connection
+
+    Returns
+    -------
+    list of fail sql script or bool list
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from sqlalchemy import create_engine
+    >>> from tidyframe import execute_sql_scripts
+    >>> 
+    >>> engine = create_engine("sqlite:///raw_table.db")
+    >>> execute_sql_script("create table a (field_a varchar(10));", con=engine)
+    True
+    >>> execute_sql_scripts(["insert into a values(" + str(i) +
+    ...                      ")" for i in range(10)] + ["abc"], con=engine, pool_size=1)
+    ['abc']
+    """
+    with concurrent.futures.ThreadPoolExecutor(
+            max_workers=pool_size) as executor:
+        return_job_status = executor.map(partial(execute_sql_script, con=con),
+                                         sql_scripts)
+        if return_fail_scripts:
+            return pd.Series(
+                sql_scripts)[~pd.Series(list(return_job_status))].tolist()
+        else:
+            return list(return_job_status)
 
 
 def _insert_chunk_records(records, table, con):

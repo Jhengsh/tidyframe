@@ -2,6 +2,11 @@
    :target: https://travis-ci.org/Jhengsh/tidyframe
 
 
+.. image:: https://img.shields.io/pypi/v/tidyframe.svg
+   :target: https://pypi.org/project/tidyframe/
+   :alt: Latest Release
+
+
 .. image:: https://codecov.io/gh/Jhengsh/tidyframe/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/Jhengsh/tidyframe
 

@@ -14,8 +14,10 @@ def test_nest_columns():
 
 
 def test_nest_columns():
-    nest(
-        df, columns_minus=df.columns[4:6].tolist(), key='data_nest', copy=True)
+    nest(df,
+         columns_minus=df.columns[4:6].tolist(),
+         key='data_nest',
+         copy=True)
 
 
 def test_nest_group_by():
@@ -31,7 +33,6 @@ def test_nest_by_index_minus():
 
 
 def test_nest_column_between():
-    nest(
-        df,
-        columns_between=['sepal length (cm)', 'petal width (cm)'],
-        key='data_nest')
+    nest(df,
+         columns_between=['sepal length (cm)', 'petal width (cm)'],
+         key='data_nest')

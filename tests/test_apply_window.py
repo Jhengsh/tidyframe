@@ -29,9 +29,8 @@ def test_apply_window_DataFrameGroupBy():
 
 
 def test_apply_window_all_list():
-    apply_window(
-        df_g, [np.mean, np.max],
-        columns=['sepal length (cm)', 'sepal length (cm)'])
+    apply_window(df_g, [np.mean, np.max],
+                 columns=['sepal length (cm)', 'sepal length (cm)'])
 
 
 def test_apply_window_lsit_func_and_str_column():

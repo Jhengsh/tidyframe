@@ -1,3 +1,4 @@
+from functools import wraps
 import pandas as pd
 from copy import deepcopy as cp
 
@@ -115,3 +116,36 @@ def fillna(*args):
         if pd.isna(non_null_value):
             list_return.append(i)
     return list_return
+
+
+def try_expect_raw(function):
+    """
+    A decorator which return first args when execpt happen
+
+    Parameters
+    ----------
+    *args : list or series
+
+    Returns
+    -------
+    list
+
+    Examples
+    ---------
+    >>> from tidyframe import try_expect_raw
+    >>> my_sum = try_expect_raw(lambda x, y: x + y)
+    >>> my_sum(1, y='a')
+    1
+    """
+    @wraps(function)
+    def decorator_func(*args, **kwargs):
+        try:
+            result = function(*args, **kwargs)
+            return result
+        except:
+            if args:
+                return args[0]
+            else:
+                raise Exception('args is None')
+
+    return decorator_func

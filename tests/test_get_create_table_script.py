@@ -18,5 +18,6 @@ def test_get_create_table_script_basic():
                                 nvarchar_columns=['e'],
                                 non_nullable_columns=['d'],
                                 create=False)
-    assert get_create_table_script(table_object)=='\nCREATE TABLE test_table (\n\ta CHAR(1) NOT NULL, \n\tb INTEGER, \n\tc FLOAT, \n\tPRIMARY KEY (a)\n)\n\n', 'get create table script not match'
-    
+    assert get_create_table_script(
+        table_object
+    ) == '\nCREATE TABLE test_table (\n\ta CHAR(1) NOT NULL, \n\tb INTEGER, \n\tc FLOAT, \n\tPRIMARY KEY (a)\n)\n\n', 'get create table script not match'

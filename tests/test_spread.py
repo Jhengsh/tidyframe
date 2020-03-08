@@ -27,9 +27,8 @@ def test_spread_mulit_value():
 
 
 def test_spread_mulit_key():
-    df_short_gather[
-        'key_with_index'] = df_short_gather['key'] + "_" + df_short_gather['index'].astype(
-            str)
+    df_short_gather['key_with_index'] = df_short_gather[
+        'key'] + "_" + df_short_gather['index'].astype(str)
     spread(df_short_gather, 'index', ['key', 'key_with_index'])
 
 

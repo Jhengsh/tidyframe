@@ -7,7 +7,7 @@ from .tools.combination import combination
 from .tools.string import replace_by_dict
 from .tools.dict import flatten_dict
 from .tools.window import apply_cum
-from .tools.case_when import nvl, coalesce, fillna
+from .tools.case_when import nvl, coalesce, fillna, try_expect_raw
 from .tools.database import (create_table, copy_table_schema,
                              load_table_schema, drop_table,
                              fit_table_schema_type, get_create_table_script,

@@ -31,6 +31,8 @@ def test_add_columns_deepcopy():
     df['c'] = [3, 8]
     df['d'] = [4, 9]
     df['e'] = [5, 10]
-    df_return = add_columns(
-        df, columns=['a', 'f'], default=[30, [10, 11]], deepcopy=False)
+    df_return = add_columns(df,
+                            columns=['a', 'f'],
+                            default=[30, [10, 11]],
+                            deepcopy=False)
     assert df.shape[1] == 6, "add_columns deepcopy error"

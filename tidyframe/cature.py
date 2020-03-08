@@ -32,7 +32,6 @@ class Possibly(object):
     @classmethod
     def possibly(cls, func):
         """ class method for Catch all Function Exception """
-
         def result_func(*args, **kargs):
             try:
                 result = func(*args, **kargs)
@@ -78,7 +77,6 @@ class Safely(object):
     @classmethod
     def safely(cls, func):
         """ class method for Catch all Function Exception """
-
         def result_func(*args, **kargs):
             result_dict = {}
             try:
